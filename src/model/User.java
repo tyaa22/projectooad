@@ -1,6 +1,7 @@
 package model;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import util.Connect;
 
@@ -30,30 +31,34 @@ public class User {
 		
 	}
 	
-	public String generateID() {
+	private String generateID(String userRole) {
 		String txt;
-		if(role.equals("Buyer")) txt = "BY";
-		else if(role.equals("Seller")) txt = "SL";
+		if(userRole.equals("Buyer")) txt = "BY";
+		else if(userRole.equals("Seller")) txt = "SL";
 		else txt = "AD";
 		String query = "SELECT user_id FROM user ORDER BY user_id DESC LIMIT 1";
 		connect.rs = connect.execQuery(query);
-		String newId = txt + "1";
+		String newId = null;
 		try {
 			if(connect.rs.next()) {
 				String recentUserId = connect.rs.getString("user_id");
 				int length = recentUserId.length();
 				int num = Integer.parseInt(recentUserId.substring(2, length));
-				num = num++;
+				num++;
 				newId = txt + Integer.toString(num);
 			}
+			else {
+				newId = txt + "1";
+			}
 		} catch (SQLException e) {
-			System.out.println("SQL error");
+			e.printStackTrace();
 		}
+		System.out.println("function end");
 		return newId;
 	}
 	
 	public void addUser(String username, String password, String phonenumber, String address, String role) {
-		String userId = generateID();
+		String userId = generateID(role);
 		String query = "INSERT INTO user " +
 						"VALUES('"+ userId +"', '"+ username +"', '"+ password +"', '"
 						+ phonenumber +"', '"+ address +"', '"+ role +"')";
@@ -61,12 +66,13 @@ public class User {
 	}
 	
 	public void addUser(User user) {
-		String userId = generateID();
+		String userId = generateID(role);
 		String query = "INSERT INTO user " +
 				"VALUES('"+ userId +"', '"+ user.getUsername() +"', '"+ user.getPassword() +"', '"
 				+ user.getPhoneNumber() +"', '"+ user.getAddress() +"', '"+ user.getRole() +"')";
 		connect.execUpdate(query);
 	}
+	
 	
 	public User searchUser(String searchUsername) {
 		User searchUser = null;

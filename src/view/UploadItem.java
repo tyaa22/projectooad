@@ -1,27 +1,30 @@
 package view;
 
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableSelectionModel;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import model.Item;
 
-public class UploadItem implements UI{
-	
-	HomePage hp;
+public class UploadItem extends VBox implements UI{
+
 	GridPane gp;
 	Label titleLbl, itemNameLbl, itemPriceLbl, itemCategoryLbl, itemSizeLbl;
 	TextField itemNameTF, itemPriceTF, itemCategoryTF, itemSizeTF;
 	Button uploadBtn;
 
-	public UploadItem(HomePage hp) {
-		this.hp = hp;
+	public UploadItem() {
 		initialize();
-		layout();
+		addElement();
 	}
 
 	@Override
@@ -54,21 +57,39 @@ public class UploadItem implements UI{
 		gp.add(itemCategoryTF, 1, 2);
 		gp.add(itemSizeTF, 1, 3);
 		
-		
-	}
-
-	@Override
-	public void layout() {
-		
-		hp.getTitleLbl().setText("Upload Item");
-		hp.getContentContainer().setCenter(gp);
-		hp.getContentContainer().setBottom(uploadBtn);
-		
-		addElement();
-		
+		this.getChildren().addAll(titleLbl, gp, uploadBtn);
 		gp.setVgap(10);
 		gp.setHgap(10);
 		gp.setAlignment(Pos.CENTER);
+		
 	}
+
+	public Button getUploadBtn() {
+		return uploadBtn;
+	}
+
+	public TextField getItemNameTF() {
+		return itemNameTF;
+	}
+
+	public TextField getItemPriceTF() {
+		return itemPriceTF;
+	}
+
+	public TextField getItemCategoryTF() {
+		return itemCategoryTF;
+	}
+
+	public TextField getItemSizeTF() {
+		return itemSizeTF;
+	}
+	
+	public void clearTextField() {
+		itemNameTF.clear();
+		itemPriceTF.clear();
+		itemCategoryTF.clear();
+		itemSizeTF.clear();
+	}
+	
 
 }

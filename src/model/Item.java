@@ -1,7 +1,11 @@
 package model;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import util.Connect;
 
 public class Item {
@@ -26,19 +30,71 @@ public class Item {
 		this.itemCategory = itemCategory;;
 	}
 	
-//	public String generateID() {
-//		ResultSet rs = connect.execQuery(query);
-//		return "IT";
-//	}
+	public Item() {
+		
+	}
+	
+	private String generateID() {
+		String txt = "IT";
+		String query = "SELECT item_id FROM item ORDER BY item_id DESC LIMIT 1";
+		connect.rs = connect.execQuery(query);
+		String newId = null;
+		try {
+			if(connect.rs.next()) {
+				String recentId = connect.rs.getString("item_id");
+				int length = recentId.length();
+				int num = Integer.parseInt(recentId.substring(2, length));
+				num++;
+				newId = txt + Integer.toString(num);
+			}
+			else {
+				newId = txt + "1";
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return newId;
+	}
+	
+	public ObservableList<Item> getAllReviewItems() {
+		ObservableList<Item> items = FXCollections.observableArrayList();
+		String query = "SELECT * FROM item WHERE item_status = 'Under Review'";
+		connect.rs = connect.execQuery(query);
+		try {
+			while(connect.rs.next()) {
+				String itemID = connect.rs.getString("item_id");
+				String itemName = connect.rs.getString("item_name");
+				String itemSize = connect.rs.getString("item_size");
+				int itemPrice = Integer.parseInt(connect.rs.getString("item_price"));
+				String itemCategory = connect.rs.getString("item_category");
+				String itemStatus = connect.rs.getString("item_status");
+				String itemWishList = connect.rs.getString("item_wishlist");
+				String itemOfferStatus = connect.rs.getString("item_offer_status");
+				Item currItem = new Item(itemID, itemName, itemSize, itemPrice, itemCategory);
+				items.add(currItem);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return items;
+	}
 	
 	public void uploadItem(String itemName, String itemSize, int itemPrice, String itemCategory) {
-//		String itemId = generateID();
-		String query = "INSERT INTO user " +
+		String itemId = generateID();
+		String query = "INSERT INTO item " +
 						"VALUES('"+ itemId +"', '"+ itemName +"', '"+ itemSize +"', '"
 						+ itemPrice +"', '"+ itemCategory +"', 'Under Review', 'null', 'null')";
 		connect.execUpdate(query);
-		
 	}
+	
+	public void editItem(String itemId, String itemName, String itemSize, int itemPrice, String itemCategory) {
+		String query = String.format("UPDATE item\n" +
+						"SET item_name = '%s', item_size = '%s', item_price = %d, " +
+						"item_category = '%s' WHERE item_id = '%s'", itemName, itemSize, itemPrice,
+						itemCategory, itemId);
+		connect.execUpdate(query);
+	}
+	
 
 	public String getItemId() {
 		return itemId;

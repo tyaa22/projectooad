@@ -9,7 +9,7 @@ import view.Register;
 
 public class UserController {
 	
-	User user;
+	User user = new User();
 	Stage currStage;
 	Register rp;
 	Login lp;
@@ -17,7 +17,6 @@ public class UserController {
 	public UserController(Stage stage) {
 		rp = new Register(stage);
 		currStage = stage;
-		user = new User();
 		rp.getRegisterBtn().setOnAction(e -> register());
 		rp.getGoToLoginBtn().setOnAction(e -> goToLogin());	
 	}
@@ -33,7 +32,7 @@ public class UserController {
 		User searchUser = user.searchUser(username);
 		if(searchUser != null) {
 			if(searchUser.getPassword().equals(password)) {
-				new HomePage(currStage);
+				new ItemController(currStage);
 			}
 			else {
 				lp.getErrorLbl().setText("Username and password do not match");
@@ -55,8 +54,13 @@ public class UserController {
 		if(rb != null) {
 			role = rb.getText();
 		}
+//		String username = "Amy March";
+//		String password = "amy!march121";
+//		String phonenumber = "+62084567346";
+//		String address = "March Road No. 1";
+//		String role = "Seller";
 		user.addUser(username, password, phonenumber, address, role);
-		new HomePage(currStage);
+		new ItemController(currStage);
 	}
 
 }
