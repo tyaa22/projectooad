@@ -3,7 +3,7 @@ package controller;
 import javafx.scene.control.RadioButton;
 import javafx.stage.Stage;
 import model.User;
-import view.HomePage;
+import view.SellerPage;
 import view.Login;
 import view.Register;
 

@@ -18,12 +18,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import model.Item;
 
-public class HomePage implements UI {
+public class SellerPage implements UI {
 	
 	Scene scene;
 	BorderPane homeContainer;
@@ -31,6 +32,7 @@ public class HomePage implements UI {
 //	GridPane itemsList, uploadItemForm;
 	TableView<Item> itemsList;
 	VBox container, formContainer;
+	HBox btnBox;
 //	UploadItem uploadContainer;
 	MenuBar menuBar;
 	Menu home;
@@ -38,9 +40,9 @@ public class HomePage implements UI {
 	GridPane gp;
 	Label titleLbl, itemNameLbl, itemPriceLbl, itemCategoryLbl, itemSizeLbl;
 	TextField itemNameTF, itemPriceTF, itemCategoryTF, itemSizeTF;
-	Button actionBtn, uploadBtn;
+	Button uploadItemBtn, editBtn, deleteBtn, uploadBtn;
 
-	public HomePage(Stage stage) {
+	public SellerPage(Stage stage) {
 		initialize();
 		layout();
 //		addEvents();
@@ -60,9 +62,10 @@ public class HomePage implements UI {
 		titleLbl = new Label("View All Items");
 		container = new VBox();
 		formContainer = new VBox();
+		btnBox = new HBox();
 		menuBar = new MenuBar();
 		home = new Menu("Home");
-		uploadItem = new MenuItem("Upload Item");
+		uploadItem = new MenuItem("View Items");
 		
 		gp = new GridPane();	
 //		titleLbl = new Label("Upload Item");
@@ -74,8 +77,12 @@ public class HomePage implements UI {
 		itemPriceTF = new TextField();
 		itemCategoryTF = new TextField();
 		itemSizeTF = new TextField();
-		actionBtn = new Button("Upload");
+		uploadItemBtn = new Button("Upload Item");
 		uploadBtn = new Button("Upload");
+		editBtn = new Button("Edit");
+		deleteBtn = new Button("Delete");
+		editBtn.setVisible(false);
+		deleteBtn.setVisible(false);
 		
 		scene = new Scene(homeContainer, 500, 500);
 		
@@ -98,8 +105,10 @@ public class HomePage implements UI {
 		gp.add(itemCategoryTF, 1, 2);
 		gp.add(itemSizeTF, 1, 3);
 		
-		container.getChildren().addAll(uploadBtn, titleLbl,itemsList);
-		formContainer.getChildren().addAll(gp, actionBtn);
+		btnBox.getChildren().addAll(uploadBtn, editBtn, deleteBtn);
+		
+		container.getChildren().addAll(uploadItemBtn, titleLbl,itemsList);
+		formContainer.getChildren().addAll(gp, btnBox);
 		
 	}
 
@@ -118,6 +127,9 @@ public class HomePage implements UI {
 		gp.setHgap(10);
 		gp.setAlignment(Pos.TOP_CENTER);
 		
+		btnBox.setSpacing(10);
+		btnBox.setAlignment(Pos.CENTER);
+		
 		container.setSpacing(10);
 		formContainer.setAlignment(Pos.CENTER);
 		formContainer.setSpacing(10);
@@ -132,10 +144,6 @@ public class HomePage implements UI {
 //	private void addEvents() {
 //		viewItem.setOnAction(e -> viewItemEvent());
 //		uploadItem.setOnAction(e -> uploadItemEvent());
-//	}
-	
-//	private void uploadItemEvent() {
-//		sp.setContent(uploadContainer);	
 //	}
 	
 	private void setUpTable() {
@@ -157,13 +165,32 @@ public class HomePage implements UI {
 		
 		itemsList.getColumns().addAll(idColumn, nameColumn, priceColumn, categoryColumn, sizeColumn);
 	}
+	
+	public void clearTextField() {
+		itemNameTF.clear();
+		itemPriceTF.clear();
+		itemCategoryTF.clear();
+		itemSizeTF.clear();
+	}
 
 	public TableView<Item> getItemsList() {
 		return itemsList;
 	}
 	
-	public Button getActionBtn() {
-		return actionBtn;
+	public Button getUploadItemBtn() {
+		return uploadItemBtn;
+	}
+
+	public Button getDeleteBtn() {
+		return deleteBtn;
+	}
+	
+	public Button getUploadBtn() {
+		return uploadBtn;
+	}
+
+	public Button getEditBtn() {
+		return editBtn;
 	}
 
 	public TextField getItemNameTF() {
@@ -180,17 +207,6 @@ public class HomePage implements UI {
 
 	public TextField getItemSizeTF() {
 		return itemSizeTF;
-	}
-	
-	public Button getUploadBtn() {
-		return uploadBtn;
-	}
-
-	public void clearTextField() {
-		itemNameTF.clear();
-		itemPriceTF.clear();
-		itemCategoryTF.clear();
-		itemSizeTF.clear();
 	}
 
 }

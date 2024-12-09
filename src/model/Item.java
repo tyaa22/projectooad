@@ -95,6 +95,12 @@ public class Item {
 		connect.execUpdate(query);
 	}
 	
+	public void deleteItem(String itemId) {
+		String query = String.format("DELETE FROM item\n" +
+				 "WHERE item_id = '%s'",  itemId);
+		connect.execUpdate(query);
+	}
+	
 
 	public String getItemId() {
 		return itemId;
