@@ -3,7 +3,8 @@ package main;
 import controller.UserController;
 import javafx.application.Application;
 import javafx.stage.Stage;
-import view.Register;
+import model.User;
+import view.RegisterView;
 
 public class Main extends Application {
 	
@@ -14,6 +15,7 @@ public class Main extends Application {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		new UserController(primaryStage);
+		User user = new User();
+		new UserController(user, primaryStage);
 	}
 }

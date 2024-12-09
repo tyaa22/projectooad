@@ -43,7 +43,6 @@ public class Connect {
 			rs = st.executeQuery(query);
 			rsm = rs.getMetaData();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return rs;

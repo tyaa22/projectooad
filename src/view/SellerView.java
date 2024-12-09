@@ -24,11 +24,11 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import model.Item;
 
-public class SellerPage implements UI {
+public class SellerView implements UI {
 	
 	Scene scene;
 	BorderPane homeContainer;
-	ScrollPane sp;
+
 //	GridPane itemsList, uploadItemForm;
 	TableView<Item> itemsList;
 	VBox container, formContainer;
@@ -42,12 +42,12 @@ public class SellerPage implements UI {
 	TextField itemNameTF, itemPriceTF, itemCategoryTF, itemSizeTF;
 	Button uploadItemBtn, editBtn, deleteBtn, uploadBtn;
 
-	public SellerPage(Stage stage) {
+	public SellerView(Stage stage) {
 		initialize();
 		layout();
 //		addEvents();
 		stage.setScene(scene);
-		stage.setTitle("CaLouselF");
+		stage.setTitle("CaLouselF Seller");
 		stage.setResizable(false);
 		stage.show();
 	}
@@ -56,8 +56,6 @@ public class SellerPage implements UI {
 	public void initialize() {
 		
 		homeContainer = new BorderPane();
-//		uploadContainer = new UploadItem();
-		sp = new ScrollPane();
 		itemsList = new TableView<Item>();
 		titleLbl = new Label("View All Items");
 		container = new VBox();
@@ -68,15 +66,16 @@ public class SellerPage implements UI {
 		uploadItem = new MenuItem("View Items");
 		
 		gp = new GridPane();	
-//		titleLbl = new Label("Upload Item");
 		itemNameLbl = new Label("Item Name:");
 		itemPriceLbl = new Label("Item Price");
 		itemCategoryLbl = new Label("Item Category");
 		itemSizeLbl = new Label("Item Size");
+		
 		itemNameTF = new TextField();
 		itemPriceTF = new TextField();
 		itemCategoryTF = new TextField();
 		itemSizeTF = new TextField();
+		
 		uploadItemBtn = new Button("Upload Item");
 		uploadBtn = new Button("Upload");
 		editBtn = new Button("Edit");

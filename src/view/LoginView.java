@@ -18,7 +18,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-public class Login implements UI {
+public class LoginView implements UI {
 	
 	Scene scene;
 	BorderPane bp;
@@ -30,15 +30,15 @@ public class Login implements UI {
 	Button loginBtn, goToRegisterBtn;
 	HBox btnBox;
 
-	public Login(Stage primaryStage) {
+	public LoginView(Stage stage) {
 		initialize();
 		layout();
-		addEvent(primaryStage);
+//		addEvent(stage);
 		typography();
-		primaryStage.setScene(scene);
-		primaryStage.setTitle("Login Form");
-		primaryStage.setResizable(false);
-		primaryStage.show();
+		stage.setScene(scene);
+		stage.setTitle("Login Form");
+		stage.setResizable(false);
+		stage.show();
 		
 	}
 	
@@ -106,12 +106,8 @@ public class Login implements UI {
 		titleLbl.setFont(new Font(20));
 	}
 	
-	public void addEvent(Stage stage) {
-		goToRegisterBtn.setOnAction(e -> goToRegister(stage));
-	}
-	
 	public void goToRegister(Stage stage) {
-		new Register(stage);
+		new RegisterView(stage);
 	}
 
 	public Button getLoginBtn() {
@@ -132,6 +128,10 @@ public class Login implements UI {
 
 	public Label getErrorLbl() {
 		return errorLbl;
+	}
+
+	public Button getGoToRegisterBtn() {
+		return goToRegisterBtn;
 	}
 
 }

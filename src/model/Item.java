@@ -56,10 +56,54 @@ public class Item {
 		return newId;
 	}
 	
-	public ObservableList<Item> getAllReviewItems() {
+	private ObservableList<Item> getData(ResultSet rs) {
 		ObservableList<Item> items = FXCollections.observableArrayList();
-		String query = "SELECT * FROM item WHERE item_status = 'Under Review'";
+		try {
+			while(rs.next()) {
+				String itemID = connect.rs.getString("item_id");
+				String itemName = connect.rs.getString("item_name");
+				String itemSize = connect.rs.getString("item_size");
+				int itemPrice = Integer.parseInt(connect.rs.getString("item_price"));
+				String itemCategory = connect.rs.getString("item_category");
+				String itemStatus = connect.rs.getString("item_status");
+				String itemWishList = connect.rs.getString("item_wishlist");
+				String itemOfferStatus = connect.rs.getString("item_offer_status");
+				Item currItem = new Item(itemID, itemName, itemSize, itemPrice, itemCategory);
+				items.add(currItem);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return items;
+	}
+	
+	public ObservableList<Item> getAllItems(String status) {
+		ObservableList<Item> items = FXCollections.observableArrayList();
+		String query = String.format("SELECT * FROM item WHERE item_status = '%s'", status);
 		connect.rs = connect.execQuery(query);
+		try {
+			while(connect.rs.next()) {
+				String itemID = connect.rs.getString("item_id");
+				String itemName = connect.rs.getString("item_name");
+				String itemSize = connect.rs.getString("item_size");
+				int itemPrice = Integer.parseInt(connect.rs.getString("item_price"));
+				String itemCategory = connect.rs.getString("item_category");
+				String itemStatus = connect.rs.getString("item_status");
+				String itemWishList = connect.rs.getString("item_wishlist");
+				String itemOfferStatus = connect.rs.getString("item_offer_status");
+				Item currItem = new Item(itemID, itemName, itemSize, itemPrice, itemCategory);
+				items.add(currItem);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return items;
+	}
+	
+	public ObservableList<Item> getAllItems() {
+		String query = "SELECT * FROM item";
+		connect.rs = connect.execQuery(query);
+		ObservableList<Item> items = FXCollections.observableArrayList();
 		try {
 			while(connect.rs.next()) {
 				String itemID = connect.rs.getString("item_id");
@@ -96,12 +140,15 @@ public class Item {
 	}
 	
 	public void deleteItem(String itemId) {
-		String query = String.format("DELETE FROM item\n" +
-				 "WHERE item_id = '%s'",  itemId);
+		String query = String.format("DELETE FROM item "+"WHERE item_id = '%s'",  itemId);
 		connect.execUpdate(query);
 	}
 	
-
+	public void approveItem(String itemId) {
+		String query = "UPDATE item SET item_status = 'Approved' WHERE item_id = '"+itemId+"'";
+		connect.execUpdate(query);
+	}
+	
 	public String getItemId() {
 		return itemId;
 	}

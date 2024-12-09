@@ -19,7 +19,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-public class Register implements UI {	
+public class RegisterView implements UI {	
 	Scene scene;
 	BorderPane bp;
 	GridPane gp;
@@ -32,26 +32,16 @@ public class Register implements UI {
 	Button registerBtn;
 	Button goToLoginBtn;
 
-	public Register(Stage primaryStage) {
+	public RegisterView(Stage stage) {
 		initialize();
 		layout();
 		typography();
-		addEvent(primaryStage);
-		primaryStage.setScene(scene);
-		primaryStage.setTitle("Register");
-		primaryStage.setResizable(false);
-		primaryStage.show();
+		stage.setScene(scene);
+		stage.setTitle("Register");
+		stage.setResizable(false);
+		stage.show();
 		
 	}
-	
-	public void addEvent(Stage stage) {
-		goToLoginBtn.setOnAction(e -> goToLogin(stage));
-	}
-	
-	private void goToLogin(Stage stage) {
-		new Login(stage);
-	}
-	
 	@Override
 	public void initialize() {
 		bp = new BorderPane();

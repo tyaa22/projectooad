@@ -3,27 +3,31 @@ package controller;
 import javafx.scene.control.RadioButton;
 import javafx.stage.Stage;
 import model.User;
-import view.SellerPage;
-import view.Login;
-import view.Register;
+import view.SellerView;
+import view.UI;
+import view.AdminView;
+import view.LoginView;
+import view.RegisterView;
 
 public class UserController {
 	
-	User user = new User();
-	Stage currStage;
-	Register rp;
-	Login lp;
+	User user;
+	Stage stage;
+	RegisterView rp;
+	LoginView lp;
 	
-	public UserController(Stage stage) {
-		rp = new Register(stage);
-		currStage = stage;
+	public UserController(User user, Stage stage) {
+		this.user = user;
+		this.stage = stage;
+		rp = new RegisterView(stage);
 		rp.getRegisterBtn().setOnAction(e -> register());
 		rp.getGoToLoginBtn().setOnAction(e -> goToLogin());	
 	}
 
 	private void goToLogin() {
-		lp = new Login(currStage);
+		lp = new LoginView(stage);
 		lp.getLoginBtn().setOnAction(e -> login());
+		lp.getGoToRegisterBtn().setOnAction(e -> new UserController(user, stage));
 	}
 
 	public void login() {
@@ -32,7 +36,7 @@ public class UserController {
 		User searchUser = user.searchUser(username);
 		if(searchUser != null) {
 			if(searchUser.getPassword().equals(password)) {
-				new ItemController(currStage);
+				redirectToView(searchUser.getRole());
 			}
 			else {
 				lp.getErrorLbl().setText("Username and password do not match");
@@ -54,13 +58,21 @@ public class UserController {
 		if(rb != null) {
 			role = rb.getText();
 		}
-//		String username = "Amy March";
-//		String password = "amy!march121";
-//		String phonenumber = "+62084567346";
-//		String address = "March Road No. 1";
-//		String role = "Seller";
 		user.addUser(username, password, phonenumber, address, role);
-		new ItemController(currStage);
+		redirectToView(role);
+//		new ItemController(stage);
+	}
+	
+	public void redirectToView(String role) {
+		if(role.equals("Seller")) {
+			new ItemController(new SellerView(stage));
+		}
+		else if(role.equals("Buyer")) {
+			System.out.println("Go to BuyerView");
+		}
+		else {
+			new ItemController(new AdminView(stage));
+		}
 	}
 
 }
