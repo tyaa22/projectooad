@@ -58,7 +58,7 @@ public class AdminView implements UI {
 		viewAllItems = new MenuItem("View All Items");
 		viewPendingItems = new MenuItem("View Pending Items");
 	
-		titleLbl = new Label();
+		titleLbl = new Label("View All Items");
 		itemNameLbl = new Label("Item Name:");
 		itemPriceLbl = new Label("Item Price");
 		itemCategoryLbl = new Label("Item Category");

@@ -35,10 +35,10 @@ public class LoginView implements UI {
 		layout();
 //		addEvent(stage);
 		typography();
-		stage.setScene(scene);
-		stage.setTitle("Login Form");
+//		stage.setScene(scene);
+		stage.setTitle("Register or Login");
 		stage.setResizable(false);
-		stage.show();
+//		stage.show();
 		
 	}
 	
@@ -92,7 +92,7 @@ public class LoginView implements UI {
 		BorderPane.setAlignment(gp, Pos.CENTER);
 		BorderPane.setAlignment(btnBox, Pos.CENTER);
 		bp.setPadding(new Insets(10));
-		btnBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, null)));
+//		btnBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, null)));
 		BorderPane.setMargin(titleLbl, new Insets(0, 0, 10, 0));
 		btnBox.setSpacing(10);
 		btnBox.setAlignment(Pos.CENTER);
@@ -133,5 +133,10 @@ public class LoginView implements UI {
 	public Button getGoToRegisterBtn() {
 		return goToRegisterBtn;
 	}
+
+	public Scene getScene() {
+		return scene;
+	}
+	
 
 }

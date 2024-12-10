@@ -127,7 +127,7 @@ public class Item {
 		String itemId = generateID();
 		String query = "INSERT INTO item " +
 						"VALUES('"+ itemId +"', '"+ itemName +"', '"+ itemSize +"', '"
-						+ itemPrice +"', '"+ itemCategory +"', 'Under Review', 'null', 'null')";
+						+ itemPrice +"', '"+ itemCategory +"', 'Under Review', null, null)";
 		connect.execUpdate(query);
 	}
 	

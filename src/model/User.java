@@ -36,7 +36,7 @@ public class User {
 		if(userRole.equals("Buyer")) txt = "BY";
 		else if(userRole.equals("Seller")) txt = "SL";
 		else txt = "AD";
-		String query = "SELECT user_id FROM user ORDER BY user_id DESC LIMIT 1";
+		String query = "SELECT user_id FROM user WHERE user_id = '"+txt+"' ORDER BY user_id DESC LIMIT 1";
 		connect.rs = connect.execQuery(query);
 		String newId = null;
 		try {
@@ -53,7 +53,6 @@ public class User {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		System.out.println("function end");
 		return newId;
 	}
 	

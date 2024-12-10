@@ -15,6 +15,7 @@ import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -23,8 +24,9 @@ public class RegisterView implements UI {
 	Scene scene;
 	BorderPane bp;
 	GridPane gp;
+	VBox container;
 	HBox radioBox, btnBox;
-	Label titleLbl, usernameLbl, passwordLbl, phoneLbl, addressLbl, roleLbl;
+	Label titleLbl, usernameLbl, passwordLbl, phoneLbl, addressLbl, roleLbl, errorLbl;
 	TextField usernameTF, phoneTF, addressTF;
 	ToggleGroup roleGroup;
 	RadioButton sellerRB, buyerRB, adminRB;
@@ -36,25 +38,28 @@ public class RegisterView implements UI {
 		initialize();
 		layout();
 		typography();
-		stage.setScene(scene);
-		stage.setTitle("Register");
+//		stage.setScene(scene);
+		stage.setTitle("Register or Login");
 		stage.setResizable(false);
-		stage.show();
+//		stage.show();
 		
 	}
 	@Override
 	public void initialize() {
 		bp = new BorderPane();
 		gp = new GridPane();
+		container = new VBox();
+		
 		titleLbl = new Label("Register Page");
 		usernameLbl = new Label("Username:");
 		passwordLbl = new Label("Password:");
 		phoneLbl = new Label("Phone Number:");
 		addressLbl = new Label("Address:");
 		roleLbl = new Label("Role:");
+		errorLbl = new Label();
 		
 		usernameTF = new TextField();
-		phoneTF = new TextField();
+		phoneTF = new TextField("+62");
 		addressTF = new TextField();
 		passwordTF = new PasswordField();
 		roleGroup = new ToggleGroup();
@@ -87,6 +92,8 @@ public class RegisterView implements UI {
 		gp.add(addressTF, 1, 3);
 		gp.add(radioBox, 1, 4);
 		
+		container.getChildren().addAll(gp, errorLbl);
+		
 		btnBox.getChildren().addAll(registerBtn, goToLoginBtn);
 		radioBox.getChildren().addAll(sellerRB, buyerRB, adminRB);
 	}
@@ -96,7 +103,7 @@ public class RegisterView implements UI {
 		addElement();
 		
 		bp.setTop(titleLbl);
-		bp.setCenter(gp);
+		bp.setCenter(container);
 		bp.setBottom(btnBox);
 		
 		btnBox.setSpacing(10);
@@ -104,7 +111,7 @@ public class RegisterView implements UI {
 		BorderPane.setAlignment(gp, Pos.CENTER);
 		BorderPane.setAlignment(btnBox, Pos.CENTER);
 		bp.setPadding(new Insets(10));
-		gp.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, null)));
+//		gp.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, null)));
 		BorderPane.setMargin(titleLbl, new Insets(0, 0, 10, 0));
 		btnBox.setAlignment(Pos.CENTER);
 	
@@ -113,7 +120,7 @@ public class RegisterView implements UI {
 		gp.setAlignment(Pos.CENTER);
 		
 		usernameLbl.setMinWidth(100);
-		usernameLbl.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, null)));
+//		usernameLbl.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, null)));
 		passwordLbl.setMinWidth(100);
 		phoneLbl.setMinWidth(100);
 		addressLbl.setMinWidth(100);
@@ -160,6 +167,11 @@ public class RegisterView implements UI {
 	public Button getGoToLoginBtn() {
 		return goToLoginBtn;
 	}
+	public Scene getScene() {
+		return scene;
+	}
+	public Label getErrorLbl() {
+		return errorLbl;
+	}
 	
-
 }
