@@ -4,11 +4,12 @@ import javafx.stage.Stage;
 import model.User;
 import view.SellerView;
 import view.AdminView;
+import view.BuyerView;
 
 public class UserController {
 	
-	User user;
-	Stage stage;
+	private User user;
+	private Stage stage;
 	
 	public UserController(Stage stage) {
 		this.user = new User();
@@ -54,7 +55,7 @@ public class UserController {
 		User searchUser = user.searchUser(username);
 		if(searchUser != null) {
 			if(searchUser.getPassword().equals(password)) {
-				redirectToView(searchUser.getRole());
+				redirectToView(searchUser.getUserId(), searchUser.getRole());
 			}
 			else {
 				return "Username and password do not match";
@@ -67,20 +68,20 @@ public class UserController {
 	public String register(String username, String password, String phonenumber, String address, String role) {
 		String errorMsg = checkAccountValidation(username, password, phonenumber, address, role);
 		if(errorMsg.equals("success")) {
-			user.addUser(username, password, phonenumber, address, role);
-			redirectToView(role);
+			User newUser = user.addUser(username, password, phonenumber, address, role);
+			redirectToView(newUser.getUserId(), role);
 		}
 		return errorMsg;
 		
 	}
 	
-	public void redirectToView(String role) {
+	public void redirectToView(String userId, String role) {
 		ItemController controller = new ItemController();
 		if(role.equals("Seller")) {
 			new SellerView(stage, controller);
 		}
 		else if(role.equals("Buyer")) {
-			System.out.println("Go to BuyerView");
+			new BuyerView(stage, userId, controller, new WishlistController());
 		}
 		else {
 			new AdminView(stage, controller);

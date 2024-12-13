@@ -34,7 +34,7 @@ public class User {
 		if(userRole.equals("Buyer")) txt = "BY";
 		else if(userRole.equals("Seller")) txt = "SL";
 		else txt = "AD";
-		String query = "SELECT user_id FROM user WHERE user_id = '"+txt+"' ORDER BY user_id DESC LIMIT 1";
+		String query = "SELECT user_id FROM user WHERE user_id LIKE '"+txt+"%' ORDER BY user_id DESC LIMIT 1";
 		connect.rs = connect.execQuery(query);
 		String newId = null;
 		try {
@@ -54,21 +54,22 @@ public class User {
 		return newId;
 	}
 	
-	public void addUser(String username, String password, String phonenumber, String address, String role) {
+	public User addUser(String username, String password, String phonenumber, String address, String role) {
 		String userId = generateID(role);
 		String query = "INSERT INTO user " +
 						"VALUES('"+ userId +"', '"+ username +"', '"+ password +"', '"
 						+ phonenumber +"', '"+ address +"', '"+ role +"')";
 		connect.execUpdate(query);
+		return new User(userId, username, password, phonenumber, address, role);
 	}
 	
-	public void addUser(User user) {
-		String userId = generateID(role);
-		String query = "INSERT INTO user " +
-				"VALUES('"+ userId +"', '"+ user.getUsername() +"', '"+ user.getPassword() +"', '"
-				+ user.getPhoneNumber() +"', '"+ user.getAddress() +"', '"+ user.getRole() +"')";
-		connect.execUpdate(query);
-	}
+//	public void addUser(User user) {
+//		String userId = generateID(role);
+//		String query = "INSERT INTO user " +
+//				"VALUES('"+ userId +"', '"+ user.getUsername() +"', '"+ user.getPassword() +"', '"
+//				+ user.getPhoneNumber() +"', '"+ user.getAddress() +"', '"+ user.getRole() +"')";
+//		connect.execUpdate(query);
+//	}
 	
 	
 	public User searchUser(String searchUsername) {

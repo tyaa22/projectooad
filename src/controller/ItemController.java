@@ -5,7 +5,7 @@ import model.Item;
 
 public class ItemController {
 	
-	Item item;
+	private Item item;
 	
 	public ItemController() {
 		this.item = new Item();
@@ -25,8 +25,6 @@ public class ItemController {
 			if(Integer.parseInt(price) <= 0) return false;
 			
 		} catch (Exception e) {
-			System.out.println(price);
-			System.out.println("NumberException");
 			return false; 
 		}
 		return true;

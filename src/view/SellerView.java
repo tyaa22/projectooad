@@ -38,8 +38,8 @@ public class SellerView extends BorderPane implements UI {
 	VBox container, formContainer;
 	HBox btnBox;
 	MenuBar menuBar;
-	Menu home;
-	MenuItem uploadItem;
+	Menu homeMenu, offerMenu;
+//	MenuItem homeMenu, offerMenu;
 	GridPane gp;
 	Label titleLbl, itemNameLbl, itemPriceLbl, itemCategoryLbl, itemSizeLbl, errorLbl;
 	TextField itemNameTF, itemPriceTF, itemCategoryTF, itemSizeTF;
@@ -69,8 +69,9 @@ public class SellerView extends BorderPane implements UI {
 		formContainer = new VBox();
 		btnBox = new HBox();
 		menuBar = new MenuBar();
-		home = new Menu("Home");
-		uploadItem = new MenuItem("View Items");
+		homeMenu = new Menu("Home");
+//		homeMenu = new MenuItem("View Items");
+//		offerMenu = new MenuItem("View Offers");
 		
 		gp = new GridPane();	
 		itemNameLbl = new Label("Item Name:");
@@ -98,8 +99,8 @@ public class SellerView extends BorderPane implements UI {
 	@Override
 	public void addElement() {
 		
-		home.getItems().addAll(uploadItem);
-		menuBar.getMenus().addAll(home);
+//		homeMenu.getItems().addAll(homeMenu, offerMenu);
+		menuBar.getMenus().addAll(homeMenu);
 		
 		setUpTable();
 		this.data = controller.getAllItems();
@@ -143,10 +144,7 @@ public class SellerView extends BorderPane implements UI {
 		container.setSpacing(10);
 		formContainer.setAlignment(Pos.CENTER);
 		formContainer.setSpacing(10);
-		
-//		sp.setContent(container);
-//		container.setPadding(new Insets(10));
-//		container.setSpacing(10);	
+
 	}
 	
 	@Override
@@ -217,6 +215,7 @@ public class SellerView extends BorderPane implements UI {
 				System.out.println("Please choose a filled row");
 			}
 		}); 
+		
 		
 	}
 	

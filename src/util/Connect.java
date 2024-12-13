@@ -2,6 +2,7 @@ package util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -19,6 +20,7 @@ public class Connect {
 	private Statement st;
 	private static Connect connect;
 	
+	public PreparedStatement ps;
 	public ResultSet rs;
 	public ResultSetMetaData rsm;
 	

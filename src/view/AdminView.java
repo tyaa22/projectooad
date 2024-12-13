@@ -56,8 +56,6 @@ public class AdminView extends BorderPane implements UI {
 
 	@Override
 	public void initialize() {
-		
-//		mainContainer = new BorderPane();
 		container = new VBox();
 		gp = new GridPane();
 		
@@ -106,7 +104,7 @@ public class AdminView extends BorderPane implements UI {
 		gp.add(itemPriceTxt, 1, 1);
 		gp.add(itemCategoryTxt, 1, 2);
 		gp.add(itemSizeTxt, 1, 3);
-		gp.add(approveBtn, 0, 0);
+//		gp.add(approveBtn, 0, 0);
 		
 		menu.getItems().addAll(viewAllItems, viewPendingItems);
 		menuBar.getMenus().add(menu);
@@ -126,6 +124,11 @@ public class AdminView extends BorderPane implements UI {
 		this.setTop(menuBar);
 		this.setCenter(container);
 		this.setBottom(bottomContainer);
+		
+		btnBox.setSpacing(10);
+		
+		gp.setVgap(10);
+		gp.setHgap(10);
 		
 	}
 	

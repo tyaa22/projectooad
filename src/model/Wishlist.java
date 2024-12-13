@@ -1,16 +1,66 @@
 package model;
 
+import java.sql.SQLException;
+
+import util.Connect;
+
 public class Wishlist {
 	
 	private String wishlistId;
 	private String itemId;
 	private String userId;
 	
+	private static Connect connect = Connect.getInstance();
+	
 	public Wishlist(String wishlistId, String itemId, String userId) {
-		super();
 		this.wishlistId = wishlistId;
 		this.itemId = itemId;
 		this.userId = userId;
+	}
+	
+	public Wishlist() {
+		
+	}
+	
+	private String generateID() {
+		String txt = "WL";
+		String query = "SELECT wishlist_id FROM wishlist ORDER BY wishlist_id DESC LIMIT 1";
+		connect.rs = connect.execQuery(query);
+		String newId = null;
+		try {
+			if(connect.rs.next()) {
+				String recentId = connect.rs.getString("wishlist_id");
+				int length = recentId.length();
+				int num = Integer.parseInt(recentId.substring(2, length));
+				num++;
+				newId = txt + Integer.toString(num);
+			}
+			else {
+				newId = txt + "1";
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return newId;
+	}
+	
+	public void addWishlist(String itemId, String userId) {
+		String newId = generateID();
+		String query = "SELECT * FROM wishlist WHERE item_id ='"+itemId+"' AND user_id = '"+userId+"'";
+		connect.rs = connect.execQuery(query);
+		try {
+			if(connect.rs.next()) {
+				System.out.println("Item already added to Wishlist");
+			}
+			else {				
+				query = "INSERT INTO wishlist(wishlist_id, item_id, user_id) VALUES("
+						+ "'"+newId+"', '"+itemId+"', '"+userId+"')";
+				connect.execUpdate(query);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	public String getWishlistId() {

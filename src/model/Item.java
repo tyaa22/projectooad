@@ -17,7 +17,7 @@ public class Item {
 	private String itemWishlist;
 	private String itemOfferStatus;
 	
-	static Connect connect = Connect.getInstance();
+	private static Connect connect = Connect.getInstance();
 	
 	public Item(String itemId, String itemName, String itemSize, int itemPrice, String itemCategory) {
 		super();
