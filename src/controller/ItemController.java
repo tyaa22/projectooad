@@ -1,16 +1,7 @@
 package controller;
 
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableSelectionModel;
 import model.Item;
-import view.AdminView;
-import view.BuyerView;
-import view.SellerView;
-import view.UI;
 
 public class ItemController {
 	
@@ -29,36 +20,41 @@ public class ItemController {
 		return item.getAllItems(status);
 	}
 	
-	//Seller Use Case
-	
-	public void uploadItem(String itemName, String itemSize, int itemPrice, String itemCategory) {
-		item.uploadItem(itemName, itemSize, itemPrice, itemCategory);
+	private boolean isNumber(String price) {
+		try {
+			if(Integer.parseInt(price) <= 0) return false;
+			
+		} catch (Exception e) {
+			System.out.println(price);
+			System.out.println("NumberException");
+			return false; 
+		}
+		return true;
 	}
-
 	
-//	public void editOrDeleteItem() {
-//		sellerView.getEditBtn().setVisible(true);
-//		sellerView.getDeleteBtn().setVisible(true);
-//		sellerView.getUploadBtn().setDisable(true);
-//		TableSelectionModel<Item> tableSelectionModel = sellerView.getItemsList().getSelectionModel();
-//		tableSelectionModel.setSelectionMode(SelectionMode.SINGLE);
-//		Item selectedItem = tableSelectionModel.getSelectedItem();
-//		
-//		if(selectedItem != null) {
-//			sellerView.getItemNameTF().setText(selectedItem.getItemName());
-//			sellerView.getItemSizeTF().setText(selectedItem.getItemSize());
-//			sellerView.getItemCategoryTF().setText(selectedItem.getItemCategory());
-//			sellerView.getItemPriceTF().setText(Integer.toString(selectedItem.getItemPrice()));
-//			sellerView.getEditBtn().setOnAction(e -> editItem(selectedItem.getItemId()));
-//			sellerView.getDeleteBtn().setOnAction(e -> deleteItem(selectedItem.getItemId()));
-//		}
-//		else {
-//			System.out.println("Please choose a filled row");
-//		}		
-//	}
+	public String checkItemValidation(String itemName, String itemPrice, String itemSize, String itemCategory) {
+		if(itemName.isEmpty() || itemPrice.isEmpty() || itemSize.isEmpty() || itemCategory.isEmpty()) return "All fields must be filled";
+		if(itemName.length() < 3) return "Item name cannot be less than 3 characters long";
+		if(!isNumber(itemPrice)) return "Item price cannot be equals to 0 or contains non-numeric values";
+		if(itemCategory.length() < 3) return "Item category cannot be less than 3 characters long";
+		return "Success";
+	}
 	
-	public void editItem(String itemId, String itemName, String itemSize, int itemPrice, String itemCategory) {
-		item.editItem(itemId, itemName, itemSize, itemPrice, itemCategory);
+	//Seller Use Case
+	public String uploadItem(String itemName, String itemPrice, String itemSize, String itemCategory) {
+		if(checkItemValidation(itemName, itemPrice, itemSize, itemCategory).equals("Success")) {
+			item.uploadItem(itemName, itemSize, Integer.parseInt(itemPrice), itemCategory);
+			return "Item successfully uploaded";
+		}
+		return checkItemValidation(itemName, itemPrice, itemSize, itemCategory);
+	}
+	
+	public String editItem(String itemId, String itemName, String itemSize, String itemPrice, String itemCategory) {
+		if(checkItemValidation(itemName, itemPrice, itemSize, itemCategory).equals("Success")) {
+			item.editItem(itemId, itemName, itemSize, Integer.parseInt(itemPrice), itemCategory);
+			return "Item successfully edited";
+		}
+		return checkItemValidation(itemName, itemPrice, itemSize, itemCategory);
 	}
 	
 	public void deleteItem(String itemId) {
@@ -67,26 +63,6 @@ public class ItemController {
 	
 	
 	//Admin Use Case
-	
-	
-//	private void approveOrDeclineItem() {
-//		TableSelectionModel<Item> tableSelectionModel = adminView.getItemsList().getSelectionModel();
-//		tableSelectionModel.setSelectionMode(SelectionMode.SINGLE);
-//		Item selectedItem = tableSelectionModel.getSelectedItem();
-//		
-//		if(selectedItem != null) {
-//			adminView.setItemNameTxt(selectedItem.getItemName());
-//			adminView.setItemSizeTxt(selectedItem.getItemSize());
-//			adminView.setItemPriceTxt(Integer.toString(selectedItem.getItemPrice()));
-//			adminView.setItemCategoryTxt(selectedItem.getItemCategory());
-//			adminView.getApproveBtn().setOnAction(e -> approveItem(selectedItem.getItemId()));
-//			adminView.getDeclineBtn().setOnAction(e -> declineItem(selectedItem.getItemId()));
-//		}
-//		else {
-//			System.out.println("Please choose a filled row");
-//		}		
-//	}
-	
 	public void approveItem(String itemId) {
 		item.approveItem(itemId);
 	}

@@ -1,40 +1,21 @@
 package controller;
 
-import javafx.scene.control.RadioButton;
 import javafx.stage.Stage;
 import model.User;
 import view.SellerView;
-import view.UI;
 import view.AdminView;
-import view.LoginView;
-import view.RegisterView;
 
 public class UserController {
 	
 	User user;
 	Stage stage;
-	RegisterView rp;
-	LoginView lp;
 	
 	public UserController(Stage stage) {
 		this.user = new User();
 		this.stage = stage;
-//		addBtnEvent();
-//		stage.setScene(rp.getScene());
-//		stage.show();
 	}
-
-//	private void goToLogin() {
-//		stage.show();
-//	}
 	
-//	private void addBtnEvent() {
-//		rp.getRegisterBtn().setOnAction(e -> register());
-//		rp.getGoToLoginBtn().setOnAction(e -> stage.setScene(lp.getScene()));	
-//		lp.getLoginBtn().setOnAction(e -> login());
-//		lp.getGoToRegisterBtn().setOnAction(e -> stage.setScene(rp.getScene()));
-//	}
-	
+	//mengecek apakah password mengandung mininal satu special character
 	private boolean containSpecialChar(String password) {
 		if(password.contains("!") || password.contains("@") || password.contains("#") ||
 				password.contains("$")|| password.contains("%") || password.contains("^") ||
@@ -42,6 +23,7 @@ public class UserController {
 		return false;
 	}
 	
+	//mengecek apakah phonenumber mengandung angka semua
 	private boolean isNumber(String phonenumber) {
 		try {
 			Integer.parseInt(phonenumber.substring(3));
@@ -52,6 +34,7 @@ public class UserController {
 		}
 	}
 	
+	//validasi user data fields
 	public String checkAccountValidation(String username, String password, String phonenumber, String address, String role) {
 		User searchUser = user.searchUser(username);
 		if(searchUser != null) return "Username already exist";
@@ -82,15 +65,6 @@ public class UserController {
 	
 	
 	public String register(String username, String password, String phonenumber, String address, String role) {
-//		String username = rp.getUsernameTF().getText();
-//		String password = rp.getPasswordTF().getText();
-//		String phonenumber = rp.getPhoneTF().getText();
-//		String address = rp.getAddressTF().getText();
-//		RadioButton rb = (RadioButton) rp.getRoleGroup().getSelectedToggle();
-//		String role = null;
-//		if(rb != null) {
-//			role = rb.getText();
-//		}
 		String errorMsg = checkAccountValidation(username, password, phonenumber, address, role);
 		if(errorMsg.equals("success")) {
 			user.addUser(username, password, phonenumber, address, role);

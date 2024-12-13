@@ -41,7 +41,7 @@ public class SellerView extends BorderPane implements UI {
 	Menu home;
 	MenuItem uploadItem;
 	GridPane gp;
-	Label titleLbl, itemNameLbl, itemPriceLbl, itemCategoryLbl, itemSizeLbl;
+	Label titleLbl, itemNameLbl, itemPriceLbl, itemCategoryLbl, itemSizeLbl, errorLbl;
 	TextField itemNameTF, itemPriceTF, itemCategoryTF, itemSizeTF;
 	Button uploadItemBtn, editBtn, deleteBtn, uploadBtn;
 	ObservableList<Item> data;
@@ -77,6 +77,7 @@ public class SellerView extends BorderPane implements UI {
 		itemPriceLbl = new Label("Item Price");
 		itemCategoryLbl = new Label("Item Category");
 		itemSizeLbl = new Label("Item Size");
+		errorLbl = new Label();
 		
 		itemNameTF = new TextField();
 		itemPriceTF = new TextField();
@@ -117,7 +118,7 @@ public class SellerView extends BorderPane implements UI {
 		btnBox.getChildren().addAll(uploadBtn, editBtn, deleteBtn);
 		
 		container.getChildren().addAll(uploadItemBtn, titleLbl,itemsList);
-		formContainer.getChildren().addAll(gp, btnBox);
+		formContainer.getChildren().addAll(gp, btnBox, errorLbl);
 		
 	}
 
@@ -161,12 +162,19 @@ public class SellerView extends BorderPane implements UI {
 		//action untuk memasukkan item ke db
 		uploadBtn.setOnAction(e -> {
 			String itemName = itemNameTF.getText();
+			String itemPrice = itemPriceTF.getText();
 			String itemSize = itemSizeTF.getText();
-			int itemPrice = Integer.parseInt(itemPriceTF.getText());
 			String itemCategory = itemCategoryTF.getText();
-			controller.uploadItem(itemName, itemSize, itemPrice, itemCategory);
-			this.data.setAll(controller.getAllItems());
-			clearTextField();
+			try {				
+				String msg = controller.uploadItem(itemName, itemPrice, itemSize, itemCategory);
+				if(msg.equals("Item successfully uploaded")) {
+					this.data.setAll(controller.getAllItems());
+					clearTextField();
+				}
+				errorLbl.setText(msg);
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
 		});
 		
 		//mengambil data item yang ingin diedit atau delete
@@ -188,15 +196,19 @@ public class SellerView extends BorderPane implements UI {
 				editBtn.setOnAction(event -> {
 					String itemName = itemNameTF.getText();
 					String itemSize = itemSizeTF.getText();
-					int itemPrice = Integer.parseInt(itemPriceTF.getText());
+					String itemPrice = itemPriceTF.getText();
 					String itemCategory = itemCategoryTF.getText();
-					controller.editItem(itemId, itemName, itemSize, itemPrice, itemCategory);
-					this.data.setAll(controller.getAllItems());
-					clearTextField();
+					String msg = controller.editItem(itemId, itemName, itemSize, itemPrice, itemCategory);
+					if(msg.equals("Item successfully edited")) {
+						this.data.setAll(controller.getAllItems());
+						clearTextField();						
+					}
+					errorLbl.setText(msg);
 				});
 				//action untuk delete item dari db
 				deleteBtn.setOnAction(event -> {
 					controller.deleteItem(itemId);
+					errorLbl.setText("Item successfully deleted");
 					data.setAll(controller.getAllItems());
 					clearTextField();
 				});

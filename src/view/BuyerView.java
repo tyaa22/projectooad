@@ -1,12 +1,15 @@
 package view;
 
+import controller.ItemController;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 public class BuyerView extends BorderPane implements UI {
+	
+	ItemController controller;
 
-	public BuyerView(Stage stage) {
-		
+	public BuyerView(Stage stage, ItemController controller) {
+		this.controller = controller;
 	}
 
 	@Override

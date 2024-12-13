@@ -1,8 +1,6 @@
 package model;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-
 import util.Connect;
 
 public class User {
