@@ -1,12 +1,17 @@
 package view;
 
+import controller.ItemController;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableSelectionModel;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -18,10 +23,10 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import model.Item;
 
-public class AdminView implements UI {
+public class AdminView extends BorderPane implements UI {
 	
 	Scene scene;
-	BorderPane mainContainer, bottomContainer;
+	BorderPane bottomContainer;
 	TableView<Item> itemsList;
 	VBox container;
 	HBox btnBox;
@@ -33,10 +38,15 @@ public class AdminView implements UI {
 	Text itemNameTxt, itemPriceTxt, itemCategoryTxt, itemSizeTxt;
 	TextField reasonTF;
 	Button approveBtn, declineBtn;
+	ItemController controller;
+	ObservableList<Item> data;
 
-	public AdminView(Stage stage) {
+	public AdminView(Stage stage, ItemController controller) {
+		this.controller = controller;
+		this.data = FXCollections.observableArrayList();
 		initialize();
-		layout();
+		setLayout();
+		addEvents(stage);
 		stage.setScene(scene);
 		stage.setTitle("CaLouselF Admin");
 		stage.setResizable(false);
@@ -47,7 +57,7 @@ public class AdminView implements UI {
 	@Override
 	public void initialize() {
 		
-		mainContainer = new BorderPane();
+//		mainContainer = new BorderPane();
 		container = new VBox();
 		gp = new GridPane();
 		
@@ -75,13 +85,15 @@ public class AdminView implements UI {
 		declineBtn = new Button("Decline");
 		btnBox = new HBox();
 		
-		scene = new Scene(mainContainer, 500, 500);
+		scene = new Scene(this, 500, 500);
 	}
 
 	@Override
 	public void addElement() {
 		
 		setUpTable();
+		this.data = controller.getAllItems("Under Review");
+		itemsList.setItems(data);
 		
 		container.getChildren().addAll(titleLbl, itemsList);
 		
@@ -99,10 +111,11 @@ public class AdminView implements UI {
 		menu.getItems().addAll(viewAllItems, viewPendingItems);
 		menuBar.getMenus().add(menu);
 		btnBox.getChildren().addAll(approveBtn, declineBtn);
+		reasonTF.setPromptText("Please input reasons to decline the item");
 	}
 
 	@Override
-	public void layout() {
+	public void setLayout() {
 		
 		addElement();
 		
@@ -110,12 +123,56 @@ public class AdminView implements UI {
 		bottomContainer.setBottom(btnBox);
 		bottomContainer.setRight(reasonTF);
 		
-		mainContainer.setTop(menuBar);
-		mainContainer.setCenter(container);
-		mainContainer.setBottom(bottomContainer);
+		this.setTop(menuBar);
+		this.setCenter(container);
+		this.setBottom(bottomContainer);
 		
 	}
 	
+	@Override	
+	public void addEvents(Stage stage) {
+		itemsList.setOnMouseClicked(e -> {
+			TableSelectionModel<Item> tableSelectionModel = itemsList.getSelectionModel();
+			tableSelectionModel.setSelectionMode(SelectionMode.SINGLE);
+			Item selectedItem = tableSelectionModel.getSelectedItem();
+			
+			if(selectedItem != null) {
+				itemNameTxt.setText(selectedItem.getItemName());
+				itemSizeTxt.setText(selectedItem.getItemSize());
+				itemPriceTxt.setText(Integer.toString(selectedItem.getItemPrice()));
+				itemCategoryTxt.setText(selectedItem.getItemCategory());
+				
+				//action untuk approve item
+				approveBtn.setOnAction(event -> {
+					controller.approveItem(selectedItem.getItemId());
+					this.data.setAll(controller.getAllItems("Under Review"));
+				});
+				
+				//action untuk decline item
+				declineBtn.setOnAction(event -> {
+					//jika terdapat reason maka hapus item dari db
+					if(!reasonTF.getText().isEmpty()) {
+						try {
+							controller.deleteItem(selectedItem.getItemId());
+							this.data.setAll(controller.getAllItems("Under Review"));
+							reasonTF.clear();
+						}	
+						catch (Exception ex) {
+							ex.printStackTrace();
+						}
+					}
+					else {
+						//request focus ke reason textfield jika reason kosong
+						reasonTF.requestFocus();
+					}
+				});
+			}
+			else {
+				System.out.println("Please choose a filled row");
+			}	
+		});
+		
+	}
 	
 	private void setUpTable() {
 		TableColumn<Item, String> idColumn = new TableColumn<Item, String>("ID");
@@ -135,40 +192,6 @@ public class AdminView implements UI {
 		sizeColumn.setCellValueFactory(new PropertyValueFactory<Item, String>("itemSize"));
 		
 		itemsList.getColumns().addAll(idColumn, nameColumn, priceColumn, categoryColumn, sizeColumn);
-	}
-
-	public TableView<Item> getItemsList() {
-		return itemsList;
-	}
-
-	public TextField getReasonTF() {
-		return reasonTF;
-	}
-
-	public Button getApproveBtn() {
-		return approveBtn;
-	}
-
-	public Button getDeclineBtn() {
-		return declineBtn;
-	}
-
-	public void setItemNameTxt(String txt) {
-		itemNameTxt.setText(txt);
-	}
-
-	public void setItemPriceTxt(String txt) {
-		itemPriceTxt.setText(txt);
-	}
-
-	public void setItemCategoryTxt(String txt) {
-		itemCategoryTxt.setText(txt);
-	}
-
-	public void setItemSizeTxt(String txt) {
-		itemSizeTxt.setText(txt);
-	}
-	
-	
+	}	
 
 }

@@ -16,26 +16,24 @@ public class UserController {
 	RegisterView rp;
 	LoginView lp;
 	
-	public UserController(User user, Stage stage) {
-		this.user = user;
+	public UserController(Stage stage) {
+		this.user = new User();
 		this.stage = stage;
-		rp = new RegisterView(stage);
-		lp = new LoginView(stage);
-		addBtnEvent();
-		stage.setScene(rp.getScene());
-		stage.show();
+//		addBtnEvent();
+//		stage.setScene(rp.getScene());
+//		stage.show();
 	}
 
-	private void goToLogin() {
-		stage.show();
-	}
+//	private void goToLogin() {
+//		stage.show();
+//	}
 	
-	private void addBtnEvent() {
-		rp.getRegisterBtn().setOnAction(e -> register());
-		rp.getGoToLoginBtn().setOnAction(e -> stage.setScene(lp.getScene()));	
-		lp.getLoginBtn().setOnAction(e -> login());
-		lp.getGoToRegisterBtn().setOnAction(e -> stage.setScene(rp.getScene()));
-	}
+//	private void addBtnEvent() {
+//		rp.getRegisterBtn().setOnAction(e -> register());
+//		rp.getGoToLoginBtn().setOnAction(e -> stage.setScene(lp.getScene()));	
+//		lp.getLoginBtn().setOnAction(e -> login());
+//		lp.getGoToRegisterBtn().setOnAction(e -> stage.setScene(rp.getScene()));
+//	}
 	
 	private boolean containSpecialChar(String password) {
 		if(password.contains("!") || password.contains("@") || password.contains("#") ||
@@ -66,12 +64,9 @@ public class UserController {
 		return "success";
 	}
 
-	public void login() {
-		String username = lp.getUsernameTF().getText();
-		String password = lp.getPasswordTF().getText();
+	public String login(String username, String password) {
 		if(username.isEmpty() || password.isEmpty()) {
-			lp.getErrorLbl().setText("Both field must be filled");
-			return;
+			return "Both field must be filled";
 		}
 		User searchUser = user.searchUser(username);
 		if(searchUser != null) {
@@ -79,45 +74,42 @@ public class UserController {
 				redirectToView(searchUser.getRole());
 			}
 			else {
-				lp.getErrorLbl().setText("Username and password do not match");
+				return "Username and password do not match";
 			}
 		}
-		else {
-			lp.getErrorLbl().setText("User not found");
-		}
+		return "User not found";
 	}
 	
 	
-	public void register() {
-		String username = rp.getUsernameTF().getText();
-		String password = rp.getPasswordTF().getText();
-		String phonenumber = rp.getPhoneTF().getText();
-		String address = rp.getAddressTF().getText();
-		RadioButton rb = (RadioButton) rp.getRoleGroup().getSelectedToggle();
-		String role = null;
-		if(rb != null) {
-			role = rb.getText();
-		}
+	public String register(String username, String password, String phonenumber, String address, String role) {
+//		String username = rp.getUsernameTF().getText();
+//		String password = rp.getPasswordTF().getText();
+//		String phonenumber = rp.getPhoneTF().getText();
+//		String address = rp.getAddressTF().getText();
+//		RadioButton rb = (RadioButton) rp.getRoleGroup().getSelectedToggle();
+//		String role = null;
+//		if(rb != null) {
+//			role = rb.getText();
+//		}
 		String errorMsg = checkAccountValidation(username, password, phonenumber, address, role);
 		if(errorMsg.equals("success")) {
 			user.addUser(username, password, phonenumber, address, role);
 			redirectToView(role);
 		}
-		else {
-			rp.getErrorLbl().setText(errorMsg);
-		}
+		return errorMsg;
 		
 	}
 	
 	public void redirectToView(String role) {
+		ItemController controller = new ItemController();
 		if(role.equals("Seller")) {
-			new ItemController(new SellerView(stage));
+			new SellerView(stage, controller);
 		}
 		else if(role.equals("Buyer")) {
 			System.out.println("Go to BuyerView");
 		}
 		else {
-			new ItemController(new AdminView(stage));
+			new AdminView(stage, controller);
 		}
 	}
 

@@ -1,5 +1,6 @@
 package view;
 
+import controller.UserController;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -18,10 +19,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-public class LoginView implements UI {
+public class LoginView extends BorderPane implements UI {
 	
 	Scene scene;
-	BorderPane bp;
+//	BorderPane bp;
 	GridPane gp;
 	VBox container;
 	Label titleLbl, usernameLbl, passwordLbl, errorLbl;
@@ -29,22 +30,26 @@ public class LoginView implements UI {
 	PasswordField passwordTF;
 	Button loginBtn, goToRegisterBtn;
 	HBox btnBox;
+	UserController controller;
+//	Stage stage;
 
-	public LoginView(Stage stage) {
+	public LoginView(Stage stage, UserController controller) {
+		this.controller = controller;
+//		this.stage = stage;
 		initialize();
-		layout();
-//		addEvent(stage);
+		setLayout();
+		addEvents(stage);
 		typography();
-//		stage.setScene(scene);
-		stage.setTitle("Register or Login");
+		stage.setScene(scene);
+		stage.setTitle("Login");
 		stage.setResizable(false);
-//		stage.show();
+		stage.show();
 		
 	}
 	
 	@Override
 	public void initialize() {
-		bp = new BorderPane();
+//		bp = new BorderPane();
 		gp = new GridPane();
 		container = new VBox();
 		
@@ -60,7 +65,7 @@ public class LoginView implements UI {
 		
 		btnBox = new HBox();
 		
-		scene = new Scene(bp, 500, 250);
+		scene = new Scene(this, 500, 250);
 	}
 	
 	@Override
@@ -80,18 +85,18 @@ public class LoginView implements UI {
 	}
 
 	@Override
-	public void layout() {
+	public void setLayout() {
 		
 		addElement();
 		
-		bp.setTop(titleLbl);
-		bp.setCenter(container);
-		bp.setBottom(btnBox);
+		this.setTop(titleLbl);
+		this.setCenter(container);
+		this.setBottom(btnBox);
 		
 		BorderPane.setAlignment(titleLbl, Pos.CENTER);
 		BorderPane.setAlignment(gp, Pos.CENTER);
 		BorderPane.setAlignment(btnBox, Pos.CENTER);
-		bp.setPadding(new Insets(10));
+		this.setPadding(new Insets(10));
 //		btnBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, null)));
 		BorderPane.setMargin(titleLbl, new Insets(0, 0, 10, 0));
 		btnBox.setSpacing(10);
@@ -102,41 +107,26 @@ public class LoginView implements UI {
 		gp.setAlignment(Pos.CENTER);
 	}
 	
+	@Override
+	public void addEvents(Stage stage) {
+		loginBtn.setOnAction(e -> {
+			String username = usernameTF.getText();
+			String password = passwordTF.getText();
+			try {
+				String msg = controller.login(username, password);
+				errorLbl.setText(msg);
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+			
+		});
+		goToRegisterBtn.setOnAction(e -> {
+			new RegisterView(stage, controller);
+		});
+	}
+	
 	public void typography() {
 		titleLbl.setFont(new Font(20));
 	}
-	
-	public void goToRegister(Stage stage) {
-		new RegisterView(stage);
-	}
-
-	public Button getLoginBtn() {
-		return loginBtn;
-	}
-
-	public Label getTitleLbl() {
-		return titleLbl;
-	}
-	
-	public TextField getUsernameTF() {
-		return usernameTF;
-	}
-
-	public PasswordField getPasswordTF() {
-		return passwordTF;
-	}
-
-	public Label getErrorLbl() {
-		return errorLbl;
-	}
-
-	public Button getGoToRegisterBtn() {
-		return goToRegisterBtn;
-	}
-
-	public Scene getScene() {
-		return scene;
-	}
-	
 
 }

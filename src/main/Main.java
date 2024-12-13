@@ -15,7 +15,7 @@ public class Main extends Application {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		User user = new User();
-		new UserController(user, primaryStage);
+		UserController controller =  new UserController(primaryStage);
+		new RegisterView(primaryStage, controller);
 	}
 }

@@ -1,5 +1,8 @@
 package view;
 
+import controller.ItemController;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -9,7 +12,9 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableSelectionModel;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -24,16 +29,14 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import model.Item;
 
-public class SellerView implements UI {
+public class SellerView extends BorderPane implements UI {
 	
 	Scene scene;
-	BorderPane homeContainer;
-
+//	BorderPane homeContainer;
 //	GridPane itemsList, uploadItemForm;
 	TableView<Item> itemsList;
 	VBox container, formContainer;
 	HBox btnBox;
-//	UploadItem uploadContainer;
 	MenuBar menuBar;
 	Menu home;
 	MenuItem uploadItem;
@@ -41,11 +44,15 @@ public class SellerView implements UI {
 	Label titleLbl, itemNameLbl, itemPriceLbl, itemCategoryLbl, itemSizeLbl;
 	TextField itemNameTF, itemPriceTF, itemCategoryTF, itemSizeTF;
 	Button uploadItemBtn, editBtn, deleteBtn, uploadBtn;
+	ObservableList<Item> data;
+	ItemController controller;
 
-	public SellerView(Stage stage) {
+	public SellerView(Stage stage, ItemController controller) {
+		this.controller = controller;
+		this.data = FXCollections.observableArrayList();
 		initialize();
-		layout();
-//		addEvents();
+		setLayout();
+		addEvents(stage);
 		stage.setScene(scene);
 		stage.setTitle("CaLouselF Seller");
 		stage.setResizable(false);
@@ -53,10 +60,10 @@ public class SellerView implements UI {
 	}
 
 	@Override
-	public void initialize() {
-		
-		homeContainer = new BorderPane();
+	public void initialize() {		
+//		homeContainer = new BorderPane();
 		itemsList = new TableView<Item>();
+		
 		titleLbl = new Label("View All Items");
 		container = new VBox();
 		formContainer = new VBox();
@@ -83,7 +90,7 @@ public class SellerView implements UI {
 		editBtn.setVisible(false);
 		deleteBtn.setVisible(false);
 		
-		scene = new Scene(homeContainer, 500, 500);
+		scene = new Scene(this, 500, 500);
 		
 	}
 
@@ -94,6 +101,9 @@ public class SellerView implements UI {
 		menuBar.getMenus().addAll(home);
 		
 		setUpTable();
+		this.data = controller.getAllItems();
+		itemsList.setItems(data);
+		
 		gp.add(itemNameLbl, 0, 0);
 		gp.add(itemPriceLbl, 0, 1);
 		gp.add(itemCategoryLbl, 0, 2);
@@ -112,13 +122,13 @@ public class SellerView implements UI {
 	}
 
 	@Override
-	public void layout() {
+	public void setLayout() {
 		
 		addElement();
 		
-		homeContainer.setTop(menuBar);
-		homeContainer.setCenter(container);
-		homeContainer.setBottom(formContainer);
+		this.setTop(menuBar);
+		this.setCenter(container);
+		this.setBottom(formContainer);
 		
 		itemsList.setMaxHeight(250);
 		
@@ -135,15 +145,68 @@ public class SellerView implements UI {
 		
 //		sp.setContent(container);
 //		container.setPadding(new Insets(10));
-//		container.setSpacing(10);
-		
-		
+//		container.setSpacing(10);	
 	}
 	
-//	private void addEvents() {
-//		viewItem.setOnAction(e -> viewItemEvent());
-//		uploadItem.setOnAction(e -> uploadItemEvent());
-//	}
+	@Override
+	public void addEvents(Stage stage) {
+		//action untuk upload item button di kiri atas screen
+		uploadItemBtn.setOnAction(e -> {
+			clearTextField();
+			deleteBtn.setDisable(true);
+			editBtn.setDisable(true);
+			uploadBtn.setDisable(false);
+		});
+		
+		//action untuk memasukkan item ke db
+		uploadBtn.setOnAction(e -> {
+			String itemName = itemNameTF.getText();
+			String itemSize = itemSizeTF.getText();
+			int itemPrice = Integer.parseInt(itemPriceTF.getText());
+			String itemCategory = itemCategoryTF.getText();
+			controller.uploadItem(itemName, itemSize, itemPrice, itemCategory);
+			this.data.setAll(controller.getAllItems());
+			clearTextField();
+		});
+		
+		//mengambil data item yang ingin diedit atau delete
+		itemsList.setOnMouseClicked(e -> {
+			editBtn.setVisible(true);
+			deleteBtn.setVisible(true);
+			uploadBtn.setDisable(true);
+			TableSelectionModel<Item> tableSelectionModel = itemsList.getSelectionModel();
+			tableSelectionModel.setSelectionMode(SelectionMode.SINGLE);
+			Item selectedItem = tableSelectionModel.getSelectedItem();
+			
+			if(selectedItem != null) {
+				String itemId = selectedItem.getItemId();
+				itemNameTF.setText(selectedItem.getItemName());
+				itemSizeTF.setText(selectedItem.getItemSize());
+				itemCategoryTF.setText(selectedItem.getItemCategory());
+				itemPriceTF.setText(Integer.toString(selectedItem.getItemPrice()));
+				//action untuk edit item ke db
+				editBtn.setOnAction(event -> {
+					String itemName = itemNameTF.getText();
+					String itemSize = itemSizeTF.getText();
+					int itemPrice = Integer.parseInt(itemPriceTF.getText());
+					String itemCategory = itemCategoryTF.getText();
+					controller.editItem(itemId, itemName, itemSize, itemPrice, itemCategory);
+					this.data.setAll(controller.getAllItems());
+					clearTextField();
+				});
+				//action untuk delete item dari db
+				deleteBtn.setOnAction(event -> {
+					controller.deleteItem(itemId);
+					data.setAll(controller.getAllItems());
+					clearTextField();
+				});
+			}
+			else {
+				System.out.println("Please choose a filled row");
+			}
+		}); 
+		
+	}
 	
 	private void setUpTable() {
 		TableColumn<Item, String> idColumn = new TableColumn<Item, String>("ID");
@@ -170,42 +233,6 @@ public class SellerView implements UI {
 		itemPriceTF.clear();
 		itemCategoryTF.clear();
 		itemSizeTF.clear();
-	}
-
-	public TableView<Item> getItemsList() {
-		return itemsList;
-	}
-	
-	public Button getUploadItemBtn() {
-		return uploadItemBtn;
-	}
-
-	public Button getDeleteBtn() {
-		return deleteBtn;
-	}
-	
-	public Button getUploadBtn() {
-		return uploadBtn;
-	}
-
-	public Button getEditBtn() {
-		return editBtn;
-	}
-
-	public TextField getItemNameTF() {
-		return itemNameTF;
-	}
-
-	public TextField getItemPriceTF() {
-		return itemPriceTF;
-	}
-
-	public TextField getItemCategoryTF() {
-		return itemCategoryTF;
-	}
-
-	public TextField getItemSizeTF() {
-		return itemSizeTF;
 	}
 
 }

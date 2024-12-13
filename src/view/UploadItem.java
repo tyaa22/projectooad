@@ -90,6 +90,18 @@ public class UploadItem extends VBox implements UI{
 		itemCategoryTF.clear();
 		itemSizeTF.clear();
 	}
+
+	@Override
+	public void setLayout() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addEvents(Stage stage) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 
 }
