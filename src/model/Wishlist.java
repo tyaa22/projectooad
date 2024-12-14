@@ -1,7 +1,11 @@
 package model;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Observable;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import util.Connect;
 
 public class Wishlist {
@@ -20,6 +24,20 @@ public class Wishlist {
 	
 	public Wishlist() {
 		
+	}
+	
+	public boolean itemAlreadyInWishlist(String userId, String itemId) {
+		String query = "SELECT * FROM wishlist WHERE user_id = '"+ userId +"' AND item_id = '"+ itemId +"' LIMIT 1";
+		connect.rs = connect.execQuery(query);
+		try {
+			if(connect.rs.next()) {
+				return true;
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
 	private String generateID() {
@@ -46,21 +64,56 @@ public class Wishlist {
 	
 	public void addWishlist(String itemId, String userId) {
 		String newId = generateID();
-		String query = "SELECT * FROM wishlist WHERE item_id ='"+itemId+"' AND user_id = '"+userId+"'";
+		String query = "INSERT INTO wishlist(wishlist_id, item_id, user_id) VALUES("
+				+ "'"+newId+"', '"+itemId+"', '"+userId+"')";
+		connect.execUpdate(query);
+		
+	}
+	
+	public void deleteWishlist(String wishlistId) {
+		String query = "DELETE FROM wishlist WHERE wishlist_id = '"+wishlistId+"'";
+		connect.execUpdate(query);
+	}
+	
+//	public ArrayList<String> getUserWishlist(String userId) {
+//		String query = "SELECT item_id FROM wishlist WHERE user_id ='"+ userId +"'";
+//		connect.rs = connect.execQuery(query);
+//		try {
+//			ArrayList<String> itemIds = new ArrayList<String>();
+//			while(connect.rs.next()) {
+//				itemIds.add(connect.rs.getString("item_id"));
+//			}
+//			return itemIds;
+//		} catch (SQLException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return null;
+//	}
+	
+	public ObservableList<Item> viewWishlist(String userId) {
+		String query = "SELECT wishlist.wishlist_id, item.item_id, item.item_name, item.item_price, item.item_size, item.item_category FROM "
+				+ "wishlist JOIN item WHERE item.item_id = wishlist.item_id AND wishlist.user_id = '"+ userId +"'";
 		connect.rs = connect.execQuery(query);
 		try {
-			if(connect.rs.next()) {
-				System.out.println("Item already added to Wishlist");
+			ObservableList<Item> wishlistItems = FXCollections.observableArrayList();
+			while(connect.rs.next()) {
+				String wishlistId = connect.rs.getString("wishlist_id");
+				String itemId = connect.rs.getString("item_id");
+				String itemName = connect.rs.getString("item_name");
+				int itemPrice = connect.rs.getInt("item_price");
+				String itemSize = connect.rs.getString("item_size");
+				String itemCategory = connect.rs.getString("item_category");
+				Item item = new Item(itemId, itemName, itemSize, itemPrice, itemCategory);
+				item.setItemWishlist(wishlistId);
+				wishlistItems.add(item);
 			}
-			else {				
-				query = "INSERT INTO wishlist(wishlist_id, item_id, user_id) VALUES("
-						+ "'"+newId+"', '"+itemId+"', '"+userId+"')";
-				connect.execUpdate(query);
-			}
+			return wishlistItems.isEmpty()? null : wishlistItems;
 		} catch (SQLException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		return null;
 	}
 
 	public String getWishlistId() {

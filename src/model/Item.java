@@ -86,7 +86,7 @@ public class Item {
 				String itemID = connect.rs.getString("item_id");
 				String itemName = connect.rs.getString("item_name");
 				String itemSize = connect.rs.getString("item_size");
-				int itemPrice = Integer.parseInt(connect.rs.getString("item_price"));
+				int itemPrice = connect.rs.getInt("item_price");
 				String itemCategory = connect.rs.getString("item_category");
 				String itemStatus = connect.rs.getString("item_status");
 				String itemWishList = connect.rs.getString("item_wishlist");
