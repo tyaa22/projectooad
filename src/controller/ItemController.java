@@ -65,4 +65,20 @@ public class ItemController {
 		item.approveItem(itemId);
 	}
 	
+	//Buyer Use Case
+	
+	public ObservableList<Item> viewOfferItem() {
+		return item.viewOfferItem();
+	}
+	
+	public String offerPrice(String userId, String itemId, String offerPrice) {
+		if(offerPrice.isEmpty()) return "Offer price cannot be empty";
+		if(!isNumber(offerPrice)) return "Price must contains numbers and bigger than zero";
+		int offerPriceInt = Integer.parseInt(offerPrice);
+		if(offerPriceInt <= item.getHighestOffer(itemId)) return "Offer price must be bigger than " + item.getHighestOffer(itemId);
+		
+		item.offerPrice(itemId, userId, offerPriceInt);
+		return "Success";
+	}
+	
 }

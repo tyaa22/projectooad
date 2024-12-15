@@ -1,7 +1,5 @@
 package controller;
 
-import java.util.ArrayList;
-
 import javafx.collections.ObservableList;
 import model.Item;
 import model.Wishlist;

@@ -1,9 +1,6 @@
 package model;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Observable;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import util.Connect;

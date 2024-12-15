@@ -1,6 +1,5 @@
 package model;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,6 +14,7 @@ public class Item {
 	private String itemCategory;
 	private String itemStatus;
 	private String itemWishlist;
+	private int offerPrice = 0;
 	private String itemOfferStatus;
 	
 	private static Connect connect = Connect.getInstance();
@@ -65,9 +65,6 @@ public class Item {
 				String itemSize = connect.rs.getString("item_size");
 				int itemPrice = Integer.parseInt(connect.rs.getString("item_price"));
 				String itemCategory = connect.rs.getString("item_category");
-				String itemStatus = connect.rs.getString("item_status");
-				String itemWishList = connect.rs.getString("item_wishlist");
-				String itemOfferStatus = connect.rs.getString("item_offer_status");
 				Item currItem = new Item(itemID, itemName, itemSize, itemPrice, itemCategory);
 				items.add(currItem);
 			}
@@ -88,9 +85,6 @@ public class Item {
 				String itemSize = connect.rs.getString("item_size");
 				int itemPrice = connect.rs.getInt("item_price");
 				String itemCategory = connect.rs.getString("item_category");
-				String itemStatus = connect.rs.getString("item_status");
-				String itemWishList = connect.rs.getString("item_wishlist");
-				String itemOfferStatus = connect.rs.getString("item_offer_status");
 				Item currItem = new Item(itemID, itemName, itemSize, itemPrice, itemCategory);
 				items.add(currItem);
 			}
@@ -104,7 +98,7 @@ public class Item {
 		String itemId = generateID();
 		String query = "INSERT INTO item " +
 						"VALUES('"+ itemId +"', '"+ itemName +"', '"+ itemSize +"', '"
-						+ itemPrice +"', '"+ itemCategory +"', 'Under Review', null, null)";
+						+ itemPrice +"', '"+ itemCategory +"', 'Pending', null, null)";
 		connect.execUpdate(query);
 	}
 	
@@ -124,6 +118,52 @@ public class Item {
 	public void approveItem(String itemId) {
 		String query = "UPDATE item SET item_status = 'Approved' WHERE item_id = '"+itemId+"'";
 		connect.execUpdate(query);
+	}
+	
+	public void offerPrice(String itemId, String userId, int offerPrice) {
+		String query = "INSERT INTO offer(user_id, item_id, offer_price) "
+				+ "VALUES('"+userId+"', '"+itemId+"', '"+offerPrice+"')";
+		connect.execUpdate(query);
+	}
+	
+	public ObservableList<Item> viewOfferItem() {
+		String query = "SELECT item.item_id, item.item_name, item.item_price, item.item_size, item.item_category, offer.offer_price"
+				+ " FROM offer JOIN item WHERE item.item_id = offer.item_id";
+		connect.rs = connect.execQuery(query);
+		try {
+			ObservableList<Item> items = FXCollections.observableArrayList();
+			while(connect.rs.next()) {
+				String itemId = connect.rs.getString("item_id");
+				String itemName = connect.rs.getString("item_name");
+				int itemPrice = connect.rs.getInt("item_price");
+				String itemSize = connect.rs.getString("item_size");
+				String itemCategory = connect.rs.getString("item_category");
+				int offerPrice = connect.rs.getInt("offer_price");
+				Item item = new Item(itemId, itemName, itemSize, itemPrice, itemCategory);
+				item.setOfferPrice(offerPrice);
+				items.add(item);
+			}
+			return items.isEmpty()? null : items;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public int getHighestOffer(String itemId) {
+		String query = "SELECT offer_price, item_price FROM offer JOIN item "
+				+ "ON offer.item_id = item.item_id WHERE item.item_id = '"+itemId+"' ORDER BY offer_price DESC LIMIT 1";
+		connect.rs = connect.execQuery(query);
+		try {
+			if(connect.rs.next()) {
+				return connect.rs.getInt("offer_price");
+			}
+			else return 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return 0;
 	}
 	
 	public String getItemId() {
@@ -188,6 +228,14 @@ public class Item {
 
 	public void setItemOfferStatus(String itemOfferStatus) {
 		this.itemOfferStatus = itemOfferStatus;
+	}
+
+	public int getOfferPrice() {
+		return offerPrice;
+	}
+
+	public void setOfferPrice(int offerPrice) {
+		this.offerPrice = offerPrice;
 	}
 
 

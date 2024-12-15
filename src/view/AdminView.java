@@ -90,7 +90,7 @@ public class AdminView extends BorderPane implements UI {
 	public void addElement() {
 		
 		setUpTable();
-		this.data = controller.getAllItems("Under Review");
+		this.data = controller.getAllItems("Pending");
 		itemsList.setItems(data);
 		
 		container.getChildren().addAll(titleLbl, itemsList);

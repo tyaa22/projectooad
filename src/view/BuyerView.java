@@ -14,6 +14,7 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableSelectionModel;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -39,7 +40,7 @@ public class BuyerView extends BorderPane implements UI {
 	GridPane gp;
 	Label titleLbl, itemNameLbl, itemPriceLbl, itemCategoryLbl, itemSizeLbl;
 	Text itemIdTXt, itemNameTxt, itemPriceTxt, itemCategoryTxt, itemSizeTxt;
-//	TextField reasonTF;
+	TextField offerPriceTF;
 	Button addWishlistBtn, offerBtn, removeBtn;
 	ObservableList<Item> data;
 	String wishlistId, selectedItemId = null;
@@ -84,7 +85,7 @@ public class BuyerView extends BorderPane implements UI {
 		itemSizeTxt = new Text();
 		
 		bottomContainer = new BorderPane();
-//		reasonTF = new TextField();
+		offerPriceTF = new TextField();
 		addWishlistBtn = new Button("Add to Wishlist");
 		offerBtn = new Button("Make Offer");
 		removeBtn = new Button("Remove");
@@ -120,7 +121,7 @@ public class BuyerView extends BorderPane implements UI {
 		addWishlistBtn.setDisable(true);
 		offerBtn.setDisable(true);
 		removeBtn.setDisable(true);
-//		reasonTF.setPromptText("Please input reasons to decline the item");
+
 		
 	}
 
@@ -130,7 +131,7 @@ public class BuyerView extends BorderPane implements UI {
 		
 		bottomContainer.setCenter(gp);
 		bottomContainer.setBottom(btnBox);
-//		bottomContainer.setRight(reasonTF);
+		bottomContainer.setRight(offerPriceTF);
 		
 		this.setTop(menuBar);
 		this.setCenter(container);
@@ -179,6 +180,13 @@ public class BuyerView extends BorderPane implements UI {
 			disableButtons();
 		});
 		
+		offerBtn.setOnAction(e -> {
+			String offerPrice = offerPriceTF.getText();
+			String msg = itemController.offerPrice(signedInUserId, selectedItemId, offerPrice);
+			offerPriceTF.clear();
+			System.out.println(msg);
+		});
+		
 		viewAllItems.setOnAction(e -> {
 			this.data.setAll(itemController.getAllItems("Approved"));
 			btnBox.getChildren().add(addWishlistBtn);
@@ -201,10 +209,7 @@ public class BuyerView extends BorderPane implements UI {
 		
 	}
 	
-	private void setUpTable() {
-//		TableColumn<Item, String> idColumn = new TableColumn<Item, String>("ID");
-//		idColumn.setCellValueFactory(new PropertyValueFactory<Item, String>("itemId"));
-		
+	private void setUpTable() {		
 		TableColumn<Item, String> nameColumn = new TableColumn<Item, String>("Name");
 		nameColumn.setCellValueFactory(new PropertyValueFactory<Item, String>("itemName"));
 		nameColumn.setPrefWidth(200);
