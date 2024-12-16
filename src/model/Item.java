@@ -15,7 +15,7 @@ public class Item {
 	private String itemStatus;
 	private String itemWishlist;
 	private int offerPrice = 0;
-	private String itemOfferStatus;
+	private String itemOfferingUser = "";
 	
 	private static Connect connect = Connect.getInstance();
 	
@@ -32,7 +32,7 @@ public class Item {
 		
 	}
 	
-	private String generateID() {
+	private static String generateID() {
 		String txt = "IT";
 		String query = "SELECT item_id FROM item ORDER BY item_id DESC LIMIT 1";
 		connect.rs = connect.execQuery(query);
@@ -54,7 +54,7 @@ public class Item {
 		return newId;
 	}
 	
-	public ObservableList<Item> getAllItems(String status) {
+	public static ObservableList<Item> getAllItems(String status) {
 		ObservableList<Item> items = FXCollections.observableArrayList();
 		String query = String.format("SELECT * FROM item WHERE item_status = '%s'", status);
 		connect.rs = connect.execQuery(query);
@@ -74,7 +74,7 @@ public class Item {
 		return items;
 	}
 	
-	public ObservableList<Item> getAllItems() {
+	public static ObservableList<Item> getAllItems() {
 		String query = "SELECT * FROM item";
 		connect.rs = connect.execQuery(query);
 		ObservableList<Item> items = FXCollections.observableArrayList();
@@ -94,7 +94,7 @@ public class Item {
 		return items;
 	}
 	
-	public void uploadItem(String itemName, String itemSize, int itemPrice, String itemCategory) {
+	public static void uploadItem(String itemName, String itemSize, int itemPrice, String itemCategory) {
 		String itemId = generateID();
 		String query = "INSERT INTO item " +
 						"VALUES('"+ itemId +"', '"+ itemName +"', '"+ itemSize +"', '"
@@ -102,7 +102,7 @@ public class Item {
 		connect.execUpdate(query);
 	}
 	
-	public void editItem(String itemId, String itemName, String itemSize, int itemPrice, String itemCategory) {
+	public static void editItem(String itemId, String itemName, String itemSize, int itemPrice, String itemCategory) {
 		String query = String.format("UPDATE item\n" +
 						"SET item_name = '%s', item_size = '%s', item_price = %d, " +
 						"item_category = '%s' WHERE item_id = '%s'", itemName, itemSize, itemPrice,
@@ -110,24 +110,25 @@ public class Item {
 		connect.execUpdate(query);
 	}
 	
-	public void deleteItem(String itemId) {
+	public static void deleteItem(String itemId) {
 		String query = String.format("DELETE FROM item "+"WHERE item_id = '%s'",  itemId);
 		connect.execUpdate(query);
 	}
 	
-	public void approveItem(String itemId) {
+	public static void approveItem(String itemId) {
 		String query = "UPDATE item SET item_status = 'Approved' WHERE item_id = '"+itemId+"'";
 		connect.execUpdate(query);
 	}
 	
-	public void offerPrice(String itemId, String userId, int offerPrice) {
+	public static void offerPrice(String itemId, String userId, int offerPrice) {
 		String query = "INSERT INTO offer(user_id, item_id, offer_price) "
 				+ "VALUES('"+userId+"', '"+itemId+"', '"+offerPrice+"')";
 		connect.execUpdate(query);
 	}
 	
-	public ObservableList<Item> viewOfferItem() {
-		String query = "SELECT item.item_id, item.item_name, item.item_price, item.item_size, item.item_category, offer.offer_price"
+	public static ObservableList<Item> viewOfferItem() {
+		String query = "SELECT item.item_id, item.item_name, item.item_price, item.item_size, "
+				+ "item.item_category, offer.offer_price, offer.user_id"
 				+ " FROM offer JOIN item WHERE item.item_id = offer.item_id";
 		connect.rs = connect.execQuery(query);
 		try {
@@ -139,8 +140,10 @@ public class Item {
 				String itemSize = connect.rs.getString("item_size");
 				String itemCategory = connect.rs.getString("item_category");
 				int offerPrice = connect.rs.getInt("offer_price");
+				String offeringUserId = connect.rs.getString("user_id");
 				Item item = new Item(itemId, itemName, itemSize, itemPrice, itemCategory);
 				item.setOfferPrice(offerPrice);
+				item.setItemOfferingUser(offeringUserId);
 				items.add(item);
 			}
 			return items.isEmpty()? null : items;
@@ -151,7 +154,7 @@ public class Item {
 		return null;
 	}
 	
-	public int getHighestOffer(String itemId) {
+	public static int getHighestOffer(String itemId) {
 		String query = "SELECT offer_price, item_price FROM offer JOIN item "
 				+ "ON offer.item_id = item.item_id WHERE item.item_id = '"+itemId+"' ORDER BY offer_price DESC LIMIT 1";
 		connect.rs = connect.execQuery(query);
@@ -164,6 +167,11 @@ public class Item {
 			e.printStackTrace();
 		}
 		return 0;
+	}
+	
+	public static void deleteOffer(String itemId, String userId) {
+		String query = "DELETE FROM offer WHERE item_id = '"+itemId+"' AND user_id = '"+userId+"'";
+		connect.execUpdate(query);
 	}
 	
 	public String getItemId() {
@@ -222,12 +230,12 @@ public class Item {
 		this.itemWishlist = itemWishlist;
 	}
 
-	public String getItemOfferStatus() {
-		return itemOfferStatus;
+	public String getItemOfferingUser() {
+		return itemOfferingUser;
 	}
 
-	public void setItemOfferStatus(String itemOfferStatus) {
-		this.itemOfferStatus = itemOfferStatus;
+	public void setItemOfferingUser(String itemOfferStatus) {
+		this.itemOfferingUser = itemOfferStatus;
 	}
 
 	public int getOfferPrice() {

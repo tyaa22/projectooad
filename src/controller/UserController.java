@@ -8,16 +8,16 @@ import view.BuyerView;
 
 public class UserController {
 	
-	private User user;
-	private Stage stage;
+//	private static User user;
+	private static Stage stage;
 	
 	public UserController(Stage stage) {
-		this.user = new User();
-		this.stage = stage;
+//		UserController.user = new User();
+		UserController.stage = stage;
 	}
 	
 	//mengecek apakah password mengandung mininal satu special character
-	private boolean containSpecialChar(String password) {
+	private static boolean containSpecialChar(String password) {
 		if(password.contains("!") || password.contains("@") || password.contains("#") ||
 				password.contains("$")|| password.contains("%") || password.contains("^") ||
 				password.contains("&") || password.contains("*")) return true;
@@ -25,7 +25,7 @@ public class UserController {
 	}
 	
 	//mengecek apakah phonenumber mengandung angka semua
-	private boolean isNumber(String phonenumber) {
+	private static boolean isNumber(String phonenumber) {
 		try {
 			Integer.parseInt(phonenumber.substring(3));
 			return true;
@@ -36,8 +36,8 @@ public class UserController {
 	}
 	
 	//validasi user data fields
-	public String checkAccountValidation(String username, String password, String phonenumber, String address, String role) {
-		User searchUser = user.searchUser(username);
+	public static String checkAccountValidation(String username, String password, String phonenumber, String address, String role) {
+		User searchUser = User.searchUser(username);
 		if(searchUser != null) return "Username already exist";
 		if(username.isEmpty() || username.length() < 3) return "Username must contains at least 3 characters";
 		if(password.isEmpty() || password.length() < 8 || !containSpecialChar(password)) return "Password must contains at least 8 characters and include special characters ";
@@ -48,11 +48,11 @@ public class UserController {
 		return "success";
 	}
 
-	public String login(String username, String password) {
+	public static String login(String username, String password) {
 		if(username.isEmpty() || password.isEmpty()) {
 			return "Both field must be filled";
 		}
-		User searchUser = user.searchUser(username);
+		User searchUser = User.searchUser(username);
 		if(searchUser != null) {
 			if(searchUser.getPassword().equals(password)) {
 				redirectToView(searchUser.getUserId(), searchUser.getRole());
@@ -65,17 +65,17 @@ public class UserController {
 	}
 	
 	
-	public String register(String username, String password, String phonenumber, String address, String role) {
+	public static String register(String username, String password, String phonenumber, String address, String role) {
 		String errorMsg = checkAccountValidation(username, password, phonenumber, address, role);
 		if(errorMsg.equals("success")) {
-			User newUser = user.addUser(username, password, phonenumber, address, role);
+			User newUser = User.addUser(username, password, phonenumber, address, role);
 			redirectToView(newUser.getUserId(), role);
 		}
 		return errorMsg;
 		
 	}
 	
-	public void redirectToView(String userId, String role) {
+	public static void redirectToView(String userId, String role) {
 		ItemController controller = new ItemController();
 		if(role.equals("Seller")) {
 			new SellerView(stage, controller);

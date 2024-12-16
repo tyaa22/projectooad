@@ -1,6 +1,7 @@
 package view;
 
 import controller.ItemController;
+import controller.TransactionController;
 import controller.WishlistController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,8 +27,8 @@ import model.Item;
 
 public class BuyerView extends BorderPane implements UI {
 	
-	ItemController itemController;
-	WishlistController wishlistController;
+//	ItemController itemController;
+//	WishlistController wishlistController;
 	String signedInUserId;
 	Scene scene;
 	BorderPane bottomContainer;
@@ -41,14 +42,15 @@ public class BuyerView extends BorderPane implements UI {
 	Label titleLbl, itemNameLbl, itemPriceLbl, itemCategoryLbl, itemSizeLbl;
 	Text itemIdTXt, itemNameTxt, itemPriceTxt, itemCategoryTxt, itemSizeTxt;
 	TextField offerPriceTF;
-	Button addWishlistBtn, offerBtn, removeBtn;
+	Button addWishlistBtn, offerBtn, removeBtn, purchaseBtn;
 	ObservableList<Item> data;
 	String wishlistId, selectedItemId = null;
+	int selectedItemPrice = 0;
 
 	public BuyerView(Stage stage, String signedInUserId,  ItemController itemController, WishlistController wishlistController) {
 		this.signedInUserId = signedInUserId;
-		this.itemController = itemController;
-		this.wishlistController = wishlistController;
+//		this.itemController = itemController;
+//		this.wishlistController = wishlistController;
 		this.data = FXCollections.observableArrayList();
 		initialize();
 		setLayout();
@@ -89,6 +91,7 @@ public class BuyerView extends BorderPane implements UI {
 		addWishlistBtn = new Button("Add to Wishlist");
 		offerBtn = new Button("Make Offer");
 		removeBtn = new Button("Remove");
+		purchaseBtn = new Button("Purchase");
 		btnBox = new HBox();
 		
 		scene = new Scene(this, 500, 500);
@@ -98,7 +101,7 @@ public class BuyerView extends BorderPane implements UI {
 	@Override
 	public void addElement() {
 		setUpTable();
-		this.data = itemController.getAllItems("Approved");
+		this.data = ItemController.getAllItems("Approved");
 		itemsList.setItems(data);
 		
 		container.getChildren().addAll(titleLbl, itemsList);
@@ -117,9 +120,10 @@ public class BuyerView extends BorderPane implements UI {
 		home.getItems().add(viewAllItems);
 		wishList.getItems().add(viewWishlist);
 		menuBar.getMenus().addAll(home, wishList, history);
-		btnBox.getChildren().addAll(addWishlistBtn, offerBtn);
+		btnBox.getChildren().addAll(addWishlistBtn, offerBtn, purchaseBtn);
 		addWishlistBtn.setDisable(true);
 		offerBtn.setDisable(true);
+		purchaseBtn.setDisable(true);
 		removeBtn.setDisable(true);
 
 		
@@ -155,24 +159,26 @@ public class BuyerView extends BorderPane implements UI {
 				itemNameTxt.setText(selectedItem.getItemName());
 				itemSizeTxt.setText(selectedItem.getItemSize());
 				itemPriceTxt.setText(Integer.toString(selectedItem.getItemPrice()));
+				selectedItemPrice = selectedItem.getItemPrice();
 				itemCategoryTxt.setText(selectedItem.getItemCategory());
 				wishlistId = selectedItem.getItemWishlist();
 			}
 			addWishlistBtn.setDisable(false);
 			offerBtn.setDisable(false);
+			purchaseBtn.setDisable(false);
 			removeBtn.setDisable(false);
 		});
 		
 		addWishlistBtn.setOnAction(event -> {
-			wishlistController.addWishlist(selectedItemId, signedInUserId);
+			WishlistController.addWishlist(selectedItemId, signedInUserId);
 			clearText();
 			disableButtons();
 		});
 		
 		removeBtn.setOnAction(e -> {
-			wishlistController.removeItemFromWishlist(wishlistId);
+			WishlistController.removeItemFromWishlist(wishlistId);
 			try {
-				this.data.setAll(wishlistController.viewWishlist(signedInUserId));				
+				this.data.setAll(WishlistController.viewWishlist(signedInUserId));				
 			} catch (Exception e2) {
 				this.data.clear();
 			}
@@ -182,13 +188,21 @@ public class BuyerView extends BorderPane implements UI {
 		
 		offerBtn.setOnAction(e -> {
 			String offerPrice = offerPriceTF.getText();
-			String msg = itemController.offerPrice(signedInUserId, selectedItemId, offerPrice);
+			String msg = ItemController.offerPrice(signedInUserId, selectedItemId, offerPrice);
 			offerPriceTF.clear();
 			System.out.println(msg);
 		});
 		
+		purchaseBtn.setOnAction(e -> {
+			try {				
+				TransactionController.purchaseItem(signedInUserId, selectedItemId, selectedItemPrice);
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		});
+		
 		viewAllItems.setOnAction(e -> {
-			this.data.setAll(itemController.getAllItems("Approved"));
+			this.data.setAll(ItemController.getAllItems("Approved"));
 			btnBox.getChildren().add(addWishlistBtn);
 			btnBox.getChildren().remove(removeBtn);
 			clearText();
@@ -197,7 +211,7 @@ public class BuyerView extends BorderPane implements UI {
 		
 		viewWishlist.setOnAction(e -> {
 			try {
-				this.data.setAll(wishlistController.viewWishlist(signedInUserId));				
+				this.data.setAll(WishlistController.viewWishlist(signedInUserId));				
 			} catch (Exception e2) {
 				this.data.clear();
 			}

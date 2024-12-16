@@ -29,7 +29,7 @@ public class User {
 		
 	}
 	
-	private String generateID(String userRole) {
+	private static String generateID(String userRole) {
 		String txt;
 		if(userRole.equals("Buyer")) txt = "BY";
 		else if(userRole.equals("Seller")) txt = "SL";
@@ -54,7 +54,7 @@ public class User {
 		return newId;
 	}
 	
-	public User addUser(String username, String password, String phonenumber, String address, String role) {
+	public static User addUser(String username, String password, String phonenumber, String address, String role) {
 		String userId = generateID(role);
 		String query = "INSERT INTO user " +
 						"VALUES('"+ userId +"', '"+ username +"', '"+ password +"', '"
@@ -72,7 +72,7 @@ public class User {
 //	}
 	
 	
-	public User searchUser(String searchUsername) {
+	public static User searchUser(String searchUsername) {
 		User searchUser = null;
 		String query = "SELECT * FROM user WHERE username='"+searchUsername+"'";
 		connect.rs = connect.execQuery(query);
