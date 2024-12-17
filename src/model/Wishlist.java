@@ -59,11 +59,17 @@ public class Wishlist {
 		return newId;
 	}
 	
-	public static void addWishlist(String itemId, String userId) {
-		String newId = generateID();
-		String query = "INSERT INTO wishlist(wishlist_id, item_id, user_id) VALUES("
-				+ "'"+newId+"', '"+itemId+"', '"+userId+"')";
-		connect.execUpdate(query);
+	public static String addWishlist(String itemId, String userId) {
+		try {
+			String newId = generateID();
+			String query = "INSERT INTO wishlist(wishlist_id, item_id, user_id) VALUES("
+					+ "'"+newId+"', '"+itemId+"', '"+userId+"')";
+			connect.execUpdate(query);
+			return "Item added to Wishlist";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "Cannot add item to Wishlist";
+		}
 		
 	}
 	

@@ -1,6 +1,9 @@
 package model;
 
+import java.awt.ItemSelectable;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,6 +14,7 @@ public class Transaction {
 	private String transactionId;
 	private String userId;
 	private String itemId;
+	private Item item;
 	private int finalPrice;
 	
 	private static Connect connect = Connect.getInstance();
@@ -26,6 +30,7 @@ public class Transaction {
 		
 	}
 	
+	// membuat ID baru untuk Transaction
 	private static String generateID() {
 		String txt = "TR";
 		String query = "SELECT transaction_id FROM transaction ORDER BY transaction_id DESC LIMIT 1";
@@ -49,32 +54,47 @@ public class Transaction {
 	}
 	
 	
-	public static ObservableList<Transaction> viewHistory(String currUserId) {
-		String query = "SELECT * FROM transaction WHERE user_id = '"+currUserId+"'";
+	// mengambil data transaksi yang pernah dilakukan oleh user
+	public static ObservableList<Item> viewHistory(String currUserId) {
+		String query = "SELECT * FROM transaction JOIN item ON transaction.item_id = item.item_id WHERE transaction.user_id = '"+currUserId+"'";
 		connect.rs = connect.execQuery(query);
 		try {
-			ObservableList<Transaction> transactions = FXCollections.observableArrayList();
+			ObservableList<Item> transactions = FXCollections.observableArrayList();
 			while(connect.rs.next()) {
 				String transacionId = connect.rs.getString("transaction_id");
 				String userId = connect.rs.getString("user_id");
 				String itemId = connect.rs.getString("item_id");
-				int finalPrice = connect.rs.getInt("final_price");
-				transactions.add(new Transaction(transacionId, userId, itemId, finalPrice));
+				String itemName = connect.rs.getString("item_name");
+				int itemPrice = connect.rs.getInt("item_price");
+				String itemCategory = connect.rs.getString("item_category");
+				String itemSize = connect.rs.getString("item_size");
+				String sellerId = connect.rs.getString("seller_id");
+				int finalPrice = connect.rs.getInt("final_price");;
+				Item newTransaction = new Item(itemId, itemName, itemSize, itemPrice, itemCategory, sellerId);
+				newTransaction.setTransactionId(transacionId);
+				transactions.add(newTransaction);
 			}
 			return transactions;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
 	
 	}
 	
-	public static void createTransaction(String userId, String itemId, int finalPrice) {
-		String newId = generateID();
-		String query = "INSERT INTO transaction VALUES('"+ newId +"', '"+ userId +"',"
-				+ " '"+ itemId +"', '"+finalPrice+"')";
-		connect.execUpdate(query);
+	//memasukkan data transaksi ke db
+	public static String createTransaction(String userId, String itemId, int finalPrice) {
+		try {
+			String newId = generateID();
+			String query = "INSERT INTO transaction VALUES('"+ newId +"', '"+ userId +"',"
+					+ " '"+ itemId +"', '"+finalPrice+"')";
+			connect.execUpdate(query);
+			//jika berhasil maka akan return success message
+			return "Item purchased";
+		} catch (Exception e) {
+			//jika tidak akan return failure message
+			return "Cannot create transaction";
+		}
 		
 	}
 
@@ -82,32 +102,26 @@ public class Transaction {
 		return userId;
 	}
 
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
-
 	public String getItemId() {
 		return itemId;
 	}
 
-	public void setItemId(String itemId) {
-		this.itemId = itemId;
-	}
 
 	public int getFinalPrice() {
 		return finalPrice;
 	}
 
-	public void setFinalPrice(int finalPrice) {
-		this.finalPrice = finalPrice;
-	}
 
 	public String getTransactionId() {
 		return transactionId;
 	}
 
-	public void setTransactionId(String transactionId) {
-		this.transactionId = transactionId;
+	public Item getItem() {
+		return item;
+	}
+
+	public void setItem(Item item) {
+		this.item = item;
 	}
 
 

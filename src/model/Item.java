@@ -17,6 +17,7 @@ public class Item {
 	private String itemWishlist;
 	private int offerPrice = 0;
 	private String itemOfferingUser = "";
+	private String transactionId = "";
 	
 	private static Connect connect = Connect.getInstance();
 	
@@ -257,6 +258,14 @@ public class Item {
 
 	public void setSellerId(String sellerId) {
 		this.sellerId = sellerId;
+	}
+
+	public String getTransactionId() {
+		return transactionId;
+	}
+
+	public void setTransactionId(String transactionId) {
+		this.transactionId = transactionId;
 	}
 
 

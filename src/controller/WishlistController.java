@@ -11,12 +11,12 @@ public class WishlistController {
 		
 	}
 	
-	public static void addWishlist(String itemId, String userId) {
+	public static String addWishlist(String itemId, String userId) {
 		if(Wishlist.itemAlreadyInWishlist(userId, itemId)) {
-			System.out.println("Item already in Wishlist");
+			return "Item already in Wishlist";
 		}
 		else {			
-			Wishlist.addWishlist(itemId, userId);
+			return Wishlist.addWishlist(itemId, userId);
 		}
 	}
 	

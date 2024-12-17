@@ -23,6 +23,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import model.Item;
+import view.uielement.ItemTableView;
 import view.uielement.SearchBox;
 
 public class SellerView extends BorderPane implements UI {
@@ -60,7 +61,7 @@ public class SellerView extends BorderPane implements UI {
 	@Override
 	public void initialize() {		
 //		homeContainer = new BorderPane();
-		itemsList = new TableView<Item>();
+		itemsList = new ItemTableView(this);
 		
 		titleLbl = new Label("View All Items");
 		container = new VBox();
@@ -111,7 +112,6 @@ public class SellerView extends BorderPane implements UI {
 		home.getItems().addAll(viewAllItems, uploadItem);
 		offer.getItems().add(viewOffers);
 
-		setUpTable();
 		this.data = ItemController.getAllItems();
 		itemsList.setItems(data);
 		
@@ -302,33 +302,7 @@ public class SellerView extends BorderPane implements UI {
 		});
 		
 	}
-	
-	private void setUpTable() {
 		
-		TableColumn<Item, String> nameColumn = new TableColumn<Item, String>("Name");
-		nameColumn.setCellValueFactory(new PropertyValueFactory<Item, String>("itemName"));
-		nameColumn.setPrefWidth(130);
-		
-		TableColumn<Item, Integer> priceColumn = new TableColumn<Item, Integer>("Price");
-		priceColumn.setCellValueFactory(new PropertyValueFactory<Item, Integer>("itemPrice"));
-		
-		TableColumn<Item, String> categoryColumn = new TableColumn<Item, String>("Category");
-		categoryColumn.setCellValueFactory(new PropertyValueFactory<Item, String>("itemCategory"));
-		
-		TableColumn<Item, String> sizeColumn = new TableColumn<Item, String>("Size");
-		sizeColumn.setCellValueFactory(new PropertyValueFactory<Item, String>("itemSize"));
-		
-		TableColumn<Item, Integer> offerPriceColumn = new TableColumn<Item, Integer>("Offer Price");
-		offerPriceColumn.setCellValueFactory(new PropertyValueFactory<Item, Integer>("offerPrice"));
-		
-		TableColumn<Item, Integer> offeringUserColumn = new TableColumn<Item, Integer>("User ID");
-		offeringUserColumn.setCellValueFactory(new PropertyValueFactory<Item, Integer>("itemOfferingUser"));
-		offerPriceColumn.setVisible(false);
-		offeringUserColumn.setVisible(false);
-		
-		itemsList.getColumns().addAll(nameColumn, categoryColumn, sizeColumn, priceColumn, offerPriceColumn, offeringUserColumn);
-	}
-	
 	public void clearSelectedItem() {
 		selectedItemId = "";
 		offeringUserId = "";

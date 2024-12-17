@@ -86,7 +86,6 @@ public class AdminView extends BorderPane implements UI {
 	@Override
 	public void addElement() {
 		
-		setUpTable();
 		this.data = ItemController.getAllItems("Pending");
 		itemsList.setItems(data);
 		
@@ -173,25 +172,5 @@ public class AdminView extends BorderPane implements UI {
 		});
 		
 	}
-	
-	private void setUpTable() {
-		TableColumn<Item, String> idColumn = new TableColumn<Item, String>("ID");
-		idColumn.setCellValueFactory(new PropertyValueFactory<Item, String>("itemId"));
-		
-		TableColumn<Item, String> nameColumn = new TableColumn<Item, String>("Name");
-		nameColumn.setCellValueFactory(new PropertyValueFactory<Item, String>("itemName"));
-		nameColumn.setPrefWidth(200);
-		
-		TableColumn<Item, Integer> priceColumn = new TableColumn<Item, Integer>("Price");
-		priceColumn.setCellValueFactory(new PropertyValueFactory<Item, Integer>("itemPrice"));
-		
-		TableColumn<Item, String> categoryColumn = new TableColumn<Item, String>("Category");
-		categoryColumn.setCellValueFactory(new PropertyValueFactory<Item, String>("itemCategory"));
-		
-		TableColumn<Item, String> sizeColumn = new TableColumn<Item, String>("Size");
-		sizeColumn.setCellValueFactory(new PropertyValueFactory<Item, String>("itemSize"));
-		
-		itemsList.getColumns().addAll(idColumn, nameColumn, priceColumn, categoryColumn, sizeColumn);
-	}	
 
 }

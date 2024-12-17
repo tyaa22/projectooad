@@ -7,7 +7,10 @@ import controller.TransactionController;
 import controller.WishlistController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -26,24 +29,24 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import model.Item;
+import model.Transaction;
+import view.uielement.CustomAlert;
+import view.uielement.ItemTableView;
 import view.uielement.SearchBox;
 
 public class BuyerView extends BorderPane implements UI {
 	
-//	ItemController itemController;
-//	WishlistController wishlistController;
 	Scene scene;
-	BorderPane bottomContainer;
-	TableView<Item> itemsList;
-	VBox container;
+	ItemTableView itemsList;
+	VBox container, bottomContainer;
 	HBox btnBox;
 	SearchBox searchBox;
 	MenuBar menuBar;
 	Menu home, wishList, history;
-	MenuItem viewAllItems, viewWishlist;
+	MenuItem viewAllItems, viewWishlist, viewPurchaseHistory;
 	GridPane gp;
 	Label titleLbl, itemNameLbl, itemPriceLbl, itemCategoryLbl, itemSizeLbl;
-	Text itemIdTXt, itemNameTxt, itemPriceTxt, itemCategoryTxt, itemSizeTxt;
+	Text itemIdTxt, itemNameTxt, itemPriceTxt, itemCategoryTxt, itemSizeTxt;
 	TextField offerPriceTF, searchTF;
 	Button addWishlistBtn, offerBtn, removeBtn, purchaseBtn, searchBtn, cancelBtn;
 	ObservableList<Item> data;
@@ -67,7 +70,7 @@ public class BuyerView extends BorderPane implements UI {
 		container = new VBox();
 		gp = new GridPane();
 		
-		itemsList = new TableView<Item>();
+		itemsList = new ItemTableView(this);
 		
 		menuBar = new MenuBar();
 		home = new Menu("Home");
@@ -75,6 +78,7 @@ public class BuyerView extends BorderPane implements UI {
 		history = new Menu("Purchase History");
 		viewAllItems = new MenuItem("View All Items");
 		viewWishlist = new MenuItem("View Wishlist");
+		viewPurchaseHistory = new MenuItem("View Purchase History");
 		searchBox = new SearchBox(itemsList);
 	
 		titleLbl = new Label("View All Items");
@@ -88,8 +92,9 @@ public class BuyerView extends BorderPane implements UI {
 		itemCategoryTxt = new Text();
 		itemSizeTxt = new Text();
 		
-		bottomContainer = new BorderPane();
+		bottomContainer = new VBox();
 		offerPriceTF = new TextField();
+		offerPriceTF.setPromptText("Enter offer price");
 		searchTF = new TextField();
 		addWishlistBtn = new Button("Add to Wishlist");
 		offerBtn = new Button("Make Offer");
@@ -105,7 +110,6 @@ public class BuyerView extends BorderPane implements UI {
 
 	@Override
 	public void addElement() {
-		setUpTable();
 		this.data = ItemController.getAllItems("Approved");
 		itemsList.setItems(data);
 		
@@ -120,10 +124,10 @@ public class BuyerView extends BorderPane implements UI {
 		gp.add(itemPriceTxt, 1, 1);
 		gp.add(itemCategoryTxt, 1, 2);
 		gp.add(itemSizeTxt, 1, 3);
-//		gp.add(addWishlistBtn, 0, 0);
 		
 		home.getItems().add(viewAllItems);
 		wishList.getItems().add(viewWishlist);
+		history.getItems().add(viewPurchaseHistory);
 		menuBar.getMenus().addAll(home, wishList, history);
 		btnBox.getChildren().addAll(addWishlistBtn, offerBtn, purchaseBtn);
 		addWishlistBtn.setDisable(true);
@@ -137,11 +141,10 @@ public class BuyerView extends BorderPane implements UI {
 	public void setLayout() {
 		addElement();
 		
-		bottomContainer.setCenter(gp);
-		bottomContainer.setBottom(btnBox);
-		bottomContainer.setRight(offerPriceTF);
+		bottomContainer.setSpacing(10);
+		bottomContainer.getChildren().addAll(gp, offerPriceTF, btnBox);
 		
-		searchTF.setMaxWidth(this.getWidth() - 10);
+		offerPriceTF.setMaxWidth(100);
 		
 		this.setTop(menuBar);
 		this.setCenter(container);
@@ -158,6 +161,7 @@ public class BuyerView extends BorderPane implements UI {
 		
 		searchBox.setEvent(itemsList, data);
 		
+		//mengambil data item yang diklik oleh user
 		itemsList.setOnMouseClicked(e -> {
 			TableSelectionModel<Item> tableSelectionModel = itemsList.getSelectionModel();
 			tableSelectionModel.setSelectionMode(SelectionMode.SINGLE);
@@ -171,18 +175,27 @@ public class BuyerView extends BorderPane implements UI {
 				selectedItemPrice = selectedItem.getItemPrice();
 				itemCategoryTxt.setText(selectedItem.getItemCategory());
 				wishlistId = selectedItem.getItemWishlist();
+				
+				//jika item tidak null maka button dapat digunakan
+				addWishlistBtn.setDisable(false);
+				offerBtn.setDisable(false);
+				purchaseBtn.setDisable(false);
+				removeBtn.setDisable(false);
 			}
-			addWishlistBtn.setDisable(false);
-			offerBtn.setDisable(false);
-			purchaseBtn.setDisable(false);
-			removeBtn.setDisable(false);
 		});
+		
 		
 		addWishlistBtn.setOnAction(event -> {
 			try {
-				WishlistController.addWishlist(selectedItemId, signedInUserId);				
+				String msg = WishlistController.addWishlist(selectedItemId, signedInUserId);
+				//memunculkan alert untuk memberitahu user apakah mereka berhasil menambahkan item ke wishlist
+				if (msg.equals("Item added to Wishlist")) {					
+					new CustomAlert(AlertType.INFORMATION, msg);
+				}
+				else {
+					new CustomAlert(AlertType.ERROR, msg);					
+				}
 			} catch (Exception e) {
-				// TODO: handle exception
 				e.printStackTrace();
 			}
 			clearText();
@@ -190,8 +203,8 @@ public class BuyerView extends BorderPane implements UI {
 		});
 		
 		removeBtn.setOnAction(e -> {
-			WishlistController.removeItemFromWishlist(wishlistId);
 			try {
+				WishlistController.removeItemFromWishlist(wishlistId);
 				this.data.setAll(WishlistController.viewWishlist(signedInUserId));				
 			} catch (Exception e2) {
 				this.data.clear();
@@ -201,57 +214,89 @@ public class BuyerView extends BorderPane implements UI {
 		});
 		
 		offerBtn.setOnAction(e -> {
+			offerPriceTF.setDisable(false);
 			String offerPrice = offerPriceTF.getText();
 			String msg = ItemController.offerPrice(signedInUserId, selectedItemId, offerPrice);
+			//memunculkan alert untuk memberitahu user apakah mereka berhasil membuat offer atau tidak
+			if(msg.equals("Success")) {
+				new CustomAlert(AlertType.INFORMATION, msg);
+			}
+			else {
+				new CustomAlert(AlertType.WARNING, msg);
+			}
 			offerPriceTF.clear();
-			System.out.println(msg);
+			offerPriceTF.setVisible(false);
 		});
 		
 		purchaseBtn.setOnAction(e -> {
+			this.data.clear();
 			try {				
-				TransactionController.purchaseItem(signedInUserId, selectedItemId, selectedItemPrice);
+				String msg = TransactionController.purchaseItem(signedInUserId, selectedItemId, selectedItemPrice);
+				WishlistController.removeItemFromWishlist(wishlistId);
+				//memunculkan alert untuk memberitahu user apakah mereka berhasil membeli barang atau tidak
+				if(msg.equals("Item purchased")) {
+					new CustomAlert(AlertType.INFORMATION, msg);
+				}
+				else {
+					new CustomAlert(AlertType.WARNING, msg);
+				}
+				this.data.addAll(WishlistController.viewWishlist(signedInUserId));
 			} catch (Exception e2) {
 				e2.printStackTrace();
 			}
 		});
 		
+		//mengubah tampilan untuk menunjukkan item apa saja yang dapat dibeli
 		viewAllItems.setOnAction(e -> {
-			this.data.setAll(ItemController.getAllItems("Approved"));
-			btnBox.getChildren().add(addWishlistBtn);
-			btnBox.getChildren().remove(removeBtn);
-			clearText();
-			disableButtons();
-		});
-		
-		viewWishlist.setOnAction(e -> {
 			try {
-				this.data.setAll(WishlistController.viewWishlist(signedInUserId));				
-			} catch (Exception e2) {
-				this.data.clear();
+				this.setBottom(bottomContainer);
+				
+				//menyembunyikan kolom transactionId
+				itemsList.getColumns().get(0).setVisible(false);
+				this.data.setAll(ItemController.getAllItems("Approved"));
+				
+				// menambahkan kembali tombol addWishlist dan menghapus remove from wishlist
+				if(!btnBox.getChildren().contains(addWishlistBtn)) {					
+					btnBox.getChildren().add(addWishlistBtn);
+				}
+				btnBox.getChildren().remove(removeBtn);
+				clearText();
+				disableButtons();
+			} catch (Exception e3) {
+				e3.printStackTrace();
 			}
-			btnBox.getChildren().add(removeBtn);
-			btnBox.getChildren().remove(addWishlistBtn);
-			clearText();
-			disableButtons();
+			
 		});
 		
-	}
-	
-	private void setUpTable() {		
-		TableColumn<Item, String> nameColumn = new TableColumn<Item, String>("Name");
-		nameColumn.setCellValueFactory(new PropertyValueFactory<Item, String>("itemName"));
-		nameColumn.setPrefWidth(200);
+		//mengubah tampilan layar untuk menunjukkan wishlist user
+		viewWishlist.setOnAction(e -> {
+			this.data.clear();
+			try {
+				//menyembunyikan kolom transactionID
+				itemsList.getColumns().get(0).setVisible(false);
+				this.data.addAll(WishlistController.viewWishlist(signedInUserId));	
+				//menambahkan tombol remove untuk menghapus wishlist
+				if(!btnBox.getChildren().contains(removeBtn)) {					
+					btnBox.getChildren().add(removeBtn);
+				}
+				this.setBottom(bottomContainer);
+				//ketika melihat wishlist, button addWishlist di-remove
+				btnBox.getChildren().remove(addWishlistBtn);
+				clearText();
+				disableButtons();
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		});
 		
-		TableColumn<Item, Integer> priceColumn = new TableColumn<Item, Integer>("Price");
-		priceColumn.setCellValueFactory(new PropertyValueFactory<Item, Integer>("itemPrice"));
+		//mengubah tampilan layar untuk menunjukkan purchase history user
+		viewPurchaseHistory.setOnAction(e -> {
+			titleLbl.setText("Purchase History");
+			this.setBottom(null);
+			this.data.setAll(TransactionController.viewHistory(signedInUserId));
+			itemsList.getColumns().get(0).setVisible(true);
+		});
 		
-		TableColumn<Item, String> categoryColumn = new TableColumn<Item, String>("Category");
-		categoryColumn.setCellValueFactory(new PropertyValueFactory<Item, String>("itemCategory"));
-		
-		TableColumn<Item, String> sizeColumn = new TableColumn<Item, String>("Size");
-		sizeColumn.setCellValueFactory(new PropertyValueFactory<Item, String>("itemSize"));
-		
-		itemsList.getColumns().addAll(nameColumn, priceColumn, categoryColumn, sizeColumn);
 	}
 	
 	private void clearText() {
