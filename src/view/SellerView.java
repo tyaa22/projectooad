@@ -1,6 +1,9 @@
 package view;
 
 import controller.ItemController;
+import controller.TransactionController;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -20,11 +23,14 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import model.Item;
+import view.uielement.SearchBox;
 
 public class SellerView extends BorderPane implements UI {
 	
 	Scene scene;
 	TableView<Item> itemsList;
+	ObservableList<Item> data;
+	SearchBox searchBox;
 	VBox container, offerContainer;
 	BorderPane formBP;
 	HBox itemBtnBox, offerBtnBox;
@@ -33,15 +39,15 @@ public class SellerView extends BorderPane implements UI {
 	MenuItem uploadItem, viewAllItems, viewOffers;
 	GridPane itemGP, offerGP;
 	Label titleLbl, itemNameLbl, itemPriceLbl, itemCategoryLbl, itemSizeLbl, errorLbl;
-	TextField itemNameTF, itemPriceTF, itemCategoryTF, itemSizeTF, reasonTF;
-	Button uploadItemBtn, editBtn, deleteBtn, uploadBtn, acceptBtn, declineBtn;
-//	ObservableList<Item> data;
+	TextField itemNameTF, itemPriceTF, itemCategoryTF, itemSizeTF, reasonTF, searchTF;
+	Button uploadItemBtn, editBtn, deleteBtn, uploadBtn, acceptBtn, declineBtn, searchBtn, cancelBtn;
 	ItemController controller;
-	String selectedItemId, offeringUserId;
+	String signedInUserId, selectedItemId, offeringUserId;
+	int selectedItemPrice = 0;
 
-	public SellerView(Stage stage, ItemController controller) {
-//		this.controller = controller;
-//		this.data = FXCollections.observableArrayList();
+	public SellerView(Stage stage, String signedInUserId) {
+		this.signedInUserId = signedInUserId;
+		this.data = FXCollections.observableArrayList();
 		initialize();
 		setLayout();
 		addEvents(stage);
@@ -82,8 +88,7 @@ public class SellerView extends BorderPane implements UI {
 		itemCategoryTF = new TextField();
 		itemSizeTF = new TextField();
 		reasonTF = new TextField();
-		
-//		offerGP = new GridPane();
+		searchBox = new SearchBox(itemsList);
 		
 		uploadItemBtn = new Button("Upload Item");
 		uploadBtn = new Button("Upload");
@@ -107,9 +112,10 @@ public class SellerView extends BorderPane implements UI {
 		offer.getItems().add(viewOffers);
 
 		setUpTable();
-		itemsList.setItems(ItemController.getAllItems());
+		this.data = ItemController.getAllItems();
+		itemsList.setItems(data);
 		
-		container.getChildren().addAll(titleLbl, itemsList);
+		container.getChildren().addAll(titleLbl, searchBox, itemsList);
 //		offerContainer.getChildren().addAll(titleLbl, itemsList);
 //		this.data = controller.getAllItems("Approved");
 		
@@ -125,8 +131,7 @@ public class SellerView extends BorderPane implements UI {
 		
 		itemBtnBox.getChildren().addAll(uploadBtn, editBtn, deleteBtn);
 		offerBtnBox.getChildren().addAll(acceptBtn, declineBtn);
-		
-		
+//		searchBox.getChildren().addAll(searchTF, searchBtn, cancelBtn);
 	}
 
 	@Override
@@ -158,13 +163,8 @@ public class SellerView extends BorderPane implements UI {
 	
 	@Override
 	public void addEvents(Stage stage) {
-		//action untuk upload item button di kiri atas screen
-//		uploadItemBtn.setOnAction(e -> {
-//			clearTextField();
-//			deleteBtn.setDisable(true);
-//			editBtn.setDisable(true);
-//			uploadBtn.setDisable(false);
-//		});
+		
+		searchBox.setEvent(itemsList, data);
 		
 		//action untuk memasukkan item ke db
 		uploadBtn.setOnAction(e -> {
@@ -173,10 +173,10 @@ public class SellerView extends BorderPane implements UI {
 			String itemSize = itemSizeTF.getText();
 			String itemCategory = itemCategoryTF.getText();
 			try {				
-				String msg = ItemController.uploadItem(itemName, itemPrice, itemSize, itemCategory);
+				String msg = ItemController.uploadItem(itemName, itemPrice, itemSize, itemCategory, signedInUserId);
 				if(msg.equals("Item successfully uploaded")) {
 					itemsList.setItems(ItemController.getAllItems());
-					clearTextField();
+					clearSelectedItem();
 				}
 				errorLbl.setText(msg);
 			} catch (Exception e2) {
@@ -196,6 +196,7 @@ public class SellerView extends BorderPane implements UI {
 			if(selectedItem != null) {
 				selectedItemId = selectedItem.getItemId();
 				offeringUserId = selectedItem.getItemOfferingUser();
+				selectedItemPrice = selectedItem.getOfferPrice();
 				itemNameTF.setText(selectedItem.getItemName());
 				itemSizeTF.setText(selectedItem.getItemSize());
 				itemCategoryTF.setText(selectedItem.getItemCategory());
@@ -219,8 +220,8 @@ public class SellerView extends BorderPane implements UI {
 			String itemCategory = itemCategoryTF.getText();
 			String msg = ItemController.editItem(selectedItemId, itemName, itemSize, itemPrice, itemCategory);
 			if(msg.equals("Item successfully edited")) {
-				itemsList.setItems(ItemController.getAllItems());
-				clearTextField();
+				this.data.setAll(ItemController.getAllItems());
+				clearSelectedItem();
 				deleteBtn.setDisable(true);
 				editBtn.setDisable(true);
 			}
@@ -230,8 +231,8 @@ public class SellerView extends BorderPane implements UI {
 		deleteBtn.setOnAction(event -> {
 			ItemController.deleteItem(selectedItemId);
 			errorLbl.setText("Item successfully deleted");
-			itemsList.setItems(ItemController.getAllItems());
-			clearTextField();
+			this.data.setAll(ItemController.getAllItems());
+			clearSelectedItem();
 			deleteBtn.setDisable(true);
 			editBtn.setDisable(true);
 		});
@@ -244,12 +245,9 @@ public class SellerView extends BorderPane implements UI {
 				itemsList.getColumns().get(5).setVisible(false);
 				itemsList.getColumns().get(0);
 				formBP.setCenter(itemBtnBox);
-				itemsList.setItems(ItemController.getAllItems());
-//				container.getChildren().clear();
-//				container.getChildren().addAll(uploadItemBtn, titleLbl, itemsList);
-//				this.data.setAll(controller.getAllItems("Approved"));				
+				this.data.setAll(ItemController.getAllItems());		
 			} catch (Exception e2) {
-//				this.data.clear();
+				this.data.clear();
 				e2.printStackTrace();
 			}
 		});
@@ -258,11 +256,8 @@ public class SellerView extends BorderPane implements UI {
 			try {
 				itemsList.getColumns().get(4).setVisible(false);
 				itemsList.getColumns().get(5).setVisible(false);
-				itemsList.setItems(ItemController.getAllItems());
-				for (Item item : ItemController.getAllItems()) {
-					System.out.println(item.getItemId());
-				}
-				clearTextField();
+				this.data.setAll(ItemController.getAllItems());
+				clearSelectedItem();
 				formBP.setCenter(itemBtnBox);
 				formBP.setRight(null);
 				deleteBtn.setDisable(true);
@@ -275,12 +270,10 @@ public class SellerView extends BorderPane implements UI {
 		});
 		
 		viewOffers.setOnAction(e -> {
-//			this.setCenter(offerContainer);
 			itemsList.getColumns().get(4).setVisible(true);
 			itemsList.getColumns().get(5).setVisible(true);
-//			System.out.println(itemsList.getColumns().get(4).getCellData(0));
 			try {
-				itemsList.setItems(ItemController.viewOfferItem());				
+				this.data.setAll(ItemController.viewOfferItem(signedInUserId));				
 				itemNameTF.setDisable(true);
 				itemPriceTF.setDisable(true);
 				itemSizeTF.setDisable(true);
@@ -290,13 +283,12 @@ public class SellerView extends BorderPane implements UI {
 			} catch (Exception e2) {
 				e2.printStackTrace();
 			}
-//			container.getChildren().clear();
-//			container.getChildren().addAll(titleLbl, itemsList);
 		});
 		
 		acceptBtn.setOnAction(e -> {
+			TransactionController.purchaseItem(offeringUserId, selectedItemId, selectedItemPrice);
 			ItemController.deleteOffer(selectedItemId, offeringUserId);
-			itemsList.setItems(ItemController.viewOfferItem());
+			this.data.setAll(ItemController.viewOfferItem(signedInUserId));
 		});
 		
 		declineBtn.setOnAction(e -> {
@@ -305,7 +297,7 @@ public class SellerView extends BorderPane implements UI {
 			}
 			else {
 				ItemController.deleteOffer(selectedItemId, offeringUserId);
-				itemsList.setItems(ItemController.viewOfferItem());
+				this.data.setAll(ItemController.viewOfferItem(signedInUserId));
 			}
 		});
 		
@@ -330,16 +322,17 @@ public class SellerView extends BorderPane implements UI {
 		offerPriceColumn.setCellValueFactory(new PropertyValueFactory<Item, Integer>("offerPrice"));
 		
 		TableColumn<Item, Integer> offeringUserColumn = new TableColumn<Item, Integer>("User ID");
-		offeringUserColumn.setCellValueFactory(new PropertyValueFactory<Item, Integer>("itemOfferStatus"));
+		offeringUserColumn.setCellValueFactory(new PropertyValueFactory<Item, Integer>("itemOfferingUser"));
 		offerPriceColumn.setVisible(false);
 		offeringUserColumn.setVisible(false);
 		
 		itemsList.getColumns().addAll(nameColumn, categoryColumn, sizeColumn, priceColumn, offerPriceColumn, offeringUserColumn);
 	}
 	
-	public void clearTextField() {
+	public void clearSelectedItem() {
 		selectedItemId = "";
 		offeringUserId = "";
+		selectedItemPrice = 0;
 		itemNameTF.clear();
 		itemPriceTF.clear();
 		itemCategoryTF.clear();

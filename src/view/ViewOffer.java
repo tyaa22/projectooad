@@ -60,7 +60,7 @@ public class ViewOffer extends VBox implements UI{
 	public void addElement() {
 		
 		setUpTable();
-		offerList.setItems(controller.viewOfferItem());
+		offerList.setItems(controller.viewOfferItem(""));
 		
 		gp.add(itemNameLbl, 0, 0);
 		gp.add(itemPriceLbl, 0, 1);

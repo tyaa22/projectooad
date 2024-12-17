@@ -1,5 +1,7 @@
 package view;
 
+import java.util.ArrayList;
+
 import controller.ItemController;
 import controller.TransactionController;
 import controller.WishlistController;
@@ -24,33 +26,32 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import model.Item;
+import view.uielement.SearchBox;
 
 public class BuyerView extends BorderPane implements UI {
 	
 //	ItemController itemController;
 //	WishlistController wishlistController;
-	String signedInUserId;
 	Scene scene;
 	BorderPane bottomContainer;
 	TableView<Item> itemsList;
 	VBox container;
 	HBox btnBox;
+	SearchBox searchBox;
 	MenuBar menuBar;
 	Menu home, wishList, history;
 	MenuItem viewAllItems, viewWishlist;
 	GridPane gp;
 	Label titleLbl, itemNameLbl, itemPriceLbl, itemCategoryLbl, itemSizeLbl;
 	Text itemIdTXt, itemNameTxt, itemPriceTxt, itemCategoryTxt, itemSizeTxt;
-	TextField offerPriceTF;
-	Button addWishlistBtn, offerBtn, removeBtn, purchaseBtn;
+	TextField offerPriceTF, searchTF;
+	Button addWishlistBtn, offerBtn, removeBtn, purchaseBtn, searchBtn, cancelBtn;
 	ObservableList<Item> data;
-	String wishlistId, selectedItemId = null;
+	String signedInUserId, wishlistId, selectedItemId = null;
 	int selectedItemPrice = 0;
 
-	public BuyerView(Stage stage, String signedInUserId,  ItemController itemController, WishlistController wishlistController) {
+	public BuyerView(Stage stage, String signedInUserId) {
 		this.signedInUserId = signedInUserId;
-//		this.itemController = itemController;
-//		this.wishlistController = wishlistController;
 		this.data = FXCollections.observableArrayList();
 		initialize();
 		setLayout();
@@ -74,6 +75,7 @@ public class BuyerView extends BorderPane implements UI {
 		history = new Menu("Purchase History");
 		viewAllItems = new MenuItem("View All Items");
 		viewWishlist = new MenuItem("View Wishlist");
+		searchBox = new SearchBox(itemsList);
 	
 		titleLbl = new Label("View All Items");
 		itemNameLbl = new Label("Item Name:");
@@ -88,10 +90,13 @@ public class BuyerView extends BorderPane implements UI {
 		
 		bottomContainer = new BorderPane();
 		offerPriceTF = new TextField();
+		searchTF = new TextField();
 		addWishlistBtn = new Button("Add to Wishlist");
 		offerBtn = new Button("Make Offer");
 		removeBtn = new Button("Remove");
 		purchaseBtn = new Button("Purchase");
+		searchBtn = new Button("Search");
+		cancelBtn = new Button("Cancel");
 		btnBox = new HBox();
 		
 		scene = new Scene(this, 500, 500);
@@ -104,7 +109,7 @@ public class BuyerView extends BorderPane implements UI {
 		this.data = ItemController.getAllItems("Approved");
 		itemsList.setItems(data);
 		
-		container.getChildren().addAll(titleLbl, itemsList);
+		container.getChildren().addAll(titleLbl, searchBox, itemsList);
 		
 		gp.add(itemNameLbl, 0, 0);
 		gp.add(itemPriceLbl, 0, 1);
@@ -125,7 +130,6 @@ public class BuyerView extends BorderPane implements UI {
 		offerBtn.setDisable(true);
 		purchaseBtn.setDisable(true);
 		removeBtn.setDisable(true);
-
 		
 	}
 
@@ -136,6 +140,8 @@ public class BuyerView extends BorderPane implements UI {
 		bottomContainer.setCenter(gp);
 		bottomContainer.setBottom(btnBox);
 		bottomContainer.setRight(offerPriceTF);
+		
+		searchTF.setMaxWidth(this.getWidth() - 10);
 		
 		this.setTop(menuBar);
 		this.setCenter(container);
@@ -149,6 +155,9 @@ public class BuyerView extends BorderPane implements UI {
 
 	@Override
 	public void addEvents(Stage stage) {
+		
+		searchBox.setEvent(itemsList, data);
+		
 		itemsList.setOnMouseClicked(e -> {
 			TableSelectionModel<Item> tableSelectionModel = itemsList.getSelectionModel();
 			tableSelectionModel.setSelectionMode(SelectionMode.SINGLE);
@@ -170,7 +179,12 @@ public class BuyerView extends BorderPane implements UI {
 		});
 		
 		addWishlistBtn.setOnAction(event -> {
-			WishlistController.addWishlist(selectedItemId, signedInUserId);
+			try {
+				WishlistController.addWishlist(selectedItemId, signedInUserId);				
+			} catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();
+			}
 			clearText();
 			disableButtons();
 		});

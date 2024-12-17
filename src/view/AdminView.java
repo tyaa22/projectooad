@@ -1,7 +1,6 @@
 package view;
 
 import controller.ItemController;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -41,9 +40,7 @@ public class AdminView extends BorderPane implements UI {
 	ItemController controller;
 	ObservableList<Item> data;
 
-	public AdminView(Stage stage, ItemController controller) {
-		this.controller = controller;
-		this.data = FXCollections.observableArrayList();
+	public AdminView(Stage stage) {
 		initialize();
 		setLayout();
 		addEvents(stage);
@@ -90,7 +87,7 @@ public class AdminView extends BorderPane implements UI {
 	public void addElement() {
 		
 		setUpTable();
-		this.data = controller.getAllItems("Pending");
+		this.data = ItemController.getAllItems("Pending");
 		itemsList.setItems(data);
 		
 		container.getChildren().addAll(titleLbl, itemsList);
@@ -147,8 +144,8 @@ public class AdminView extends BorderPane implements UI {
 				
 				//action untuk approve item
 				approveBtn.setOnAction(event -> {
-					controller.approveItem(selectedItem.getItemId());
-					this.data.setAll(controller.getAllItems("Under Review"));
+					ItemController.approveItem(selectedItem.getItemId());
+					this.data.setAll(ItemController.getAllItems("Under Review"));
 				});
 				
 				//action untuk decline item
@@ -156,8 +153,8 @@ public class AdminView extends BorderPane implements UI {
 					//jika terdapat reason maka hapus item dari db
 					if(!reasonTF.getText().isEmpty()) {
 						try {
-							controller.deleteItem(selectedItem.getItemId());
-							this.data.setAll(controller.getAllItems("Under Review"));
+							ItemController.deleteItem(selectedItem.getItemId());
+							this.data.setAll(ItemController.getAllItems("Under Review"));
 							reasonTF.clear();
 						}	
 						catch (Exception ex) {

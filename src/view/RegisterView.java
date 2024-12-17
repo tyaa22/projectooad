@@ -102,6 +102,7 @@ public class RegisterView extends BorderPane implements UI {
 		
 		btnBox.getChildren().addAll(registerBtn, goToLoginBtn);
 		radioBox.getChildren().addAll(sellerRB, buyerRB, adminRB);
+		
 	}
 	
 	@Override

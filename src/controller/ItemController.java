@@ -1,14 +1,14 @@
 package controller;
 
+import java.util.ArrayList;
+
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Item;
 
 public class ItemController {
 	
-//	private static Item item;
-	
 	public ItemController() {
-//		ItemController.item = new Item();
 	}
 
 	
@@ -38,10 +38,20 @@ public class ItemController {
 		return "Success";
 	}
 	
+	public static ObservableList<Item> browseItem(String itemName, ObservableList<Item> items) {
+		ObservableList<Item> searchItems = FXCollections.observableArrayList();
+		for (Item item : items) {
+			if(item.getItemName().toLowerCase().contains(itemName.toLowerCase())) {
+				 searchItems.add(item);
+			}
+		}
+		return searchItems;
+	}
+	
 	//Seller Use Case
-	public static String uploadItem(String itemName, String itemPrice, String itemSize, String itemCategory) {
+	public static String uploadItem(String itemName, String itemPrice, String itemSize, String itemCategory, String sellerId) {
 		if(checkItemValidation(itemName, itemPrice, itemSize, itemCategory).equals("Success")) {
-			Item.uploadItem(itemName, itemSize, Integer.parseInt(itemPrice), itemCategory);
+			Item.uploadItem(itemName, itemSize, Integer.parseInt(itemPrice), itemCategory, sellerId);
 			return "Item successfully uploaded";
 		}
 		return checkItemValidation(itemName, itemPrice, itemSize, itemCategory);
@@ -59,6 +69,17 @@ public class ItemController {
 		Item.deleteItem(itemId);
 	}
 	
+	public static void acceptOffer(String itemId, String userId) {
+		Item.deleteOffer(itemId, userId);
+	}
+	
+	public static void deleteOffer(String itemId, String userId) {
+		Item.deleteOffer(itemId, userId);
+	}
+	
+	public static ObservableList<Item> viewOfferItem(String sellerId) {
+		return Item.viewOfferItem(sellerId);
+	}
 	
 	//Admin Use Case
 	public static void approveItem(String itemId) {
@@ -67,9 +88,6 @@ public class ItemController {
 	
 	//Buyer Use Case
 	
-	public static ObservableList<Item> viewOfferItem() {
-		return Item.viewOfferItem();
-	}
 	
 	public static String offerPrice(String userId, String itemId, String offerPrice) {
 		if(offerPrice.isEmpty()) return "Offer price cannot be empty";
@@ -81,12 +99,5 @@ public class ItemController {
 		return "Success";
 	}
 	
-	public static void acceptOffer(String itemId, String userId) {
-		Item.deleteOffer(itemId, userId);
-	}
-	
-	public static void deleteOffer(String itemId, String userId) {
-		Item.deleteOffer(itemId, userId);
-	}
 	
 }

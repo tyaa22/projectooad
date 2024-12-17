@@ -6,18 +6,17 @@ import model.Wishlist;
 
 public class WishlistController {
 	
-	private static Wishlist wishlist;
 
 	public WishlistController() {
-		WishlistController.wishlist = new Wishlist();
+		
 	}
 	
 	public static void addWishlist(String itemId, String userId) {
-		if(wishlist.itemAlreadyInWishlist(userId, itemId)) {
+		if(Wishlist.itemAlreadyInWishlist(userId, itemId)) {
 			System.out.println("Item already in Wishlist");
 		}
 		else {			
-			wishlist.addWishlist(itemId, userId);
+			Wishlist.addWishlist(itemId, userId);
 		}
 	}
 	
@@ -26,11 +25,11 @@ public class WishlistController {
 //	}
 	
 	public static ObservableList<Item> viewWishlist(String userId) {
-		return wishlist.viewWishlist(userId);
+		return Wishlist.viewWishlist(userId);
 	}
 	
 	public static void removeItemFromWishlist(String wishlistId) {
-		wishlist.deleteWishlist(wishlistId);
+		Wishlist.deleteWishlist(wishlistId);
 	}
 
 }

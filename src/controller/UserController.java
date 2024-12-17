@@ -76,15 +76,14 @@ public class UserController {
 	}
 	
 	public static void redirectToView(String userId, String role) {
-		ItemController controller = new ItemController();
 		if(role.equals("Seller")) {
-			new SellerView(stage, controller);
+			new SellerView(stage, userId);
 		}
 		else if(role.equals("Buyer")) {
-			new BuyerView(stage, userId, controller, new WishlistController());
+			new BuyerView(stage, userId);
 		}
 		else {
-			new AdminView(stage, controller);
+			new AdminView(stage);
 		}
 	}
 

@@ -13,19 +13,21 @@ public class Item {
 	private int itemPrice;
 	private String itemCategory;
 	private String itemStatus;
+	private String sellerId;
 	private String itemWishlist;
 	private int offerPrice = 0;
 	private String itemOfferingUser = "";
 	
 	private static Connect connect = Connect.getInstance();
 	
-	public Item(String itemId, String itemName, String itemSize, int itemPrice, String itemCategory) {
+	public Item(String itemId, String itemName, String itemSize, int itemPrice, String itemCategory, String sellerId) {
 		super();
 		this.itemId = itemId;
 		this.itemName = itemName;
 		this.itemSize = itemSize;
 		this.itemPrice = itemPrice;
-		this.itemCategory = itemCategory;;
+		this.itemCategory = itemCategory;
+		this.sellerId = sellerId;
 	}
 	
 	public Item() {
@@ -65,7 +67,8 @@ public class Item {
 				String itemSize = connect.rs.getString("item_size");
 				int itemPrice = Integer.parseInt(connect.rs.getString("item_price"));
 				String itemCategory = connect.rs.getString("item_category");
-				Item currItem = new Item(itemID, itemName, itemSize, itemPrice, itemCategory);
+				String sellerId = connect.rs.getString("seller_id");
+				Item currItem = new Item(itemID, itemName, itemSize, itemPrice, itemCategory, sellerId);
 				items.add(currItem);
 			}
 		} catch (SQLException e) {
@@ -85,7 +88,8 @@ public class Item {
 				String itemSize = connect.rs.getString("item_size");
 				int itemPrice = connect.rs.getInt("item_price");
 				String itemCategory = connect.rs.getString("item_category");
-				Item currItem = new Item(itemID, itemName, itemSize, itemPrice, itemCategory);
+				String sellerId = connect.rs.getString("seller_id");
+				Item currItem = new Item(itemID, itemName, itemSize, itemPrice, itemCategory, sellerId);
 				items.add(currItem);
 			}
 		} catch (SQLException e) {
@@ -94,11 +98,11 @@ public class Item {
 		return items;
 	}
 	
-	public static void uploadItem(String itemName, String itemSize, int itemPrice, String itemCategory) {
+	public static void uploadItem(String itemName, String itemSize, int itemPrice, String itemCategory, String sellerId) {
 		String itemId = generateID();
 		String query = "INSERT INTO item " +
 						"VALUES('"+ itemId +"', '"+ itemName +"', '"+ itemSize +"', '"
-						+ itemPrice +"', '"+ itemCategory +"', 'Pending', null, null)";
+						+ itemPrice +"', '"+ itemCategory +"', 'Pending', '"+sellerId+"')";
 		connect.execUpdate(query);
 	}
 	
@@ -126,10 +130,10 @@ public class Item {
 		connect.execUpdate(query);
 	}
 	
-	public static ObservableList<Item> viewOfferItem() {
+	public static ObservableList<Item> viewOfferItem(String sellerId) {
 		String query = "SELECT item.item_id, item.item_name, item.item_price, item.item_size, "
-				+ "item.item_category, offer.offer_price, offer.user_id"
-				+ " FROM offer JOIN item WHERE item.item_id = offer.item_id";
+				+ "item.item_category, item.seller_id, offer.offer_price, offer.user_id"
+				+ " FROM offer JOIN item ON item.item_id = offer.item_id WHERE item.seller_id = '"+sellerId+"'";
 		connect.rs = connect.execQuery(query);
 		try {
 			ObservableList<Item> items = FXCollections.observableArrayList();
@@ -141,7 +145,8 @@ public class Item {
 				String itemCategory = connect.rs.getString("item_category");
 				int offerPrice = connect.rs.getInt("offer_price");
 				String offeringUserId = connect.rs.getString("user_id");
-				Item item = new Item(itemId, itemName, itemSize, itemPrice, itemCategory);
+				String itemSeller = connect.rs.getString("seller_id");
+				Item item = new Item(itemId, itemName, itemSize, itemPrice, itemCategory, itemSeller);
 				item.setOfferPrice(offerPrice);
 				item.setItemOfferingUser(offeringUserId);
 				items.add(item);
@@ -244,6 +249,14 @@ public class Item {
 
 	public void setOfferPrice(int offerPrice) {
 		this.offerPrice = offerPrice;
+	}
+
+	public String getSellerId() {
+		return sellerId;
+	}
+
+	public void setSellerId(String sellerId) {
+		this.sellerId = sellerId;
 	}
 
 

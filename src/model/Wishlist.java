@@ -23,7 +23,7 @@ public class Wishlist {
 		
 	}
 	
-	public boolean itemAlreadyInWishlist(String userId, String itemId) {
+	public static boolean itemAlreadyInWishlist(String userId, String itemId) {
 		String query = "SELECT * FROM wishlist WHERE user_id = '"+ userId +"' AND item_id = '"+ itemId +"' LIMIT 1";
 		connect.rs = connect.execQuery(query);
 		try {
@@ -37,7 +37,7 @@ public class Wishlist {
 		return false;
 	}
 	
-	private String generateID() {
+	private static String generateID() {
 		String txt = "WL";
 		String query = "SELECT wishlist_id FROM wishlist ORDER BY wishlist_id DESC LIMIT 1";
 		connect.rs = connect.execQuery(query);
@@ -59,7 +59,7 @@ public class Wishlist {
 		return newId;
 	}
 	
-	public void addWishlist(String itemId, String userId) {
+	public static void addWishlist(String itemId, String userId) {
 		String newId = generateID();
 		String query = "INSERT INTO wishlist(wishlist_id, item_id, user_id) VALUES("
 				+ "'"+newId+"', '"+itemId+"', '"+userId+"')";
@@ -67,7 +67,7 @@ public class Wishlist {
 		
 	}
 	
-	public void deleteWishlist(String wishlistId) {
+	public static void deleteWishlist(String wishlistId) {
 		String query = "DELETE FROM wishlist WHERE wishlist_id = '"+wishlistId+"'";
 		connect.execUpdate(query);
 	}
@@ -88,8 +88,9 @@ public class Wishlist {
 //		return null;
 //	}
 	
-	public ObservableList<Item> viewWishlist(String userId) {
-		String query = "SELECT wishlist.wishlist_id, item.item_id, item.item_name, item.item_price, item.item_size, item.item_category FROM "
+	public static ObservableList<Item> viewWishlist(String userId) {
+		String query = "SELECT wishlist.wishlist_id, item.item_id, item.item_name, item.item_price, "
+				+ "item.item_size, item.item_category, item.seller_id FROM "
 				+ "wishlist JOIN item WHERE item.item_id = wishlist.item_id AND wishlist.user_id = '"+ userId +"'";
 		connect.rs = connect.execQuery(query);
 		try {
@@ -101,7 +102,8 @@ public class Wishlist {
 				int itemPrice = connect.rs.getInt("item_price");
 				String itemSize = connect.rs.getString("item_size");
 				String itemCategory = connect.rs.getString("item_category");
-				Item item = new Item(itemId, itemName, itemSize, itemPrice, itemCategory);
+				String sellerId = connect.rs.getString("seller_id");
+				Item item = new Item(itemId, itemName, itemSize, itemPrice, itemCategory, sellerId);
 				item.setItemWishlist(wishlistId);
 				wishlistItems.add(item);
 			}
